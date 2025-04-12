@@ -1,6 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@tailwind base;
+@tailwind components;
 
 :root {
   --foreground: #000000;
@@ -11,3 +13,4 @@ body {
   color: var(--foreground);
   background: var(--background);
 }
+
