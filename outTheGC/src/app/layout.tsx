@@ -1,26 +1,33 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
+'use client';
 
-const inter = Inter({
+import { Geist, Geist_Mono } from "next/font/google";
+import "./globals.css";
+import { AuthProvider } from '@/context/AuthContext';
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
-  variable: "--font-inter",
 });
 
-export const metadata: Metadata = {
-  title: "OutTheGC - Making Moves, For Real",
-  description: "OutTheGC - Your platform for making real moves.",
-};
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} font-inter`}>{children}</body>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+      </body>
     </html>
   );
 }
