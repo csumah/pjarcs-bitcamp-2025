@@ -10,8 +10,8 @@ A collaborative event planning web application that helps friendgroups follow th
 - Assign roles and coordinate plans
 
 ## Tech Stack
-- Next.js
-- PostgreSQL + Auth
+- Next.js + Figma
+- Supabase + Auth
 - Host the website on Vercel
 
 ## Main Features
