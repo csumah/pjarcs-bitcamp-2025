@@ -1,9 +1,11 @@
 import React from 'react';
+import Navbar from '../components/Navbar';
 
 export default function Homepage() {
   return (
     <div className="flex h-screen bg-white font-sans">
       {/* Sidebar */}
+      {/* 
       <div className="w-32 bg-gradient-to-b from-orange-300 to-orange-500 flex flex-col items-center py-4 rounded-tr-3xl rounded-br-3xl">
         <button className="my-4 p-2 bg-white rounded-full shadow-md">
           <span className="text-orange-500">🏠</span>
@@ -18,7 +20,8 @@ export default function Homepage() {
           <span className="text-orange-500">➕</span>
         </button>
       </div>
-
+        */}
+      <Navbar />
       {/* Main Content */}
       <div className="flex-1 p-6 grid grid-cols-2 gap-6">
   {/* Left Side: Groups on Top, Latest Activity Below */}
