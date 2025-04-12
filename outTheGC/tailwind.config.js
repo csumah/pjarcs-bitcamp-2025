@@ -7,6 +7,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        inter: ['var(--font-inter)'],
+      },
       colors: {
         primary: "#F4A460",
         "primary-hover": "#E38B4F",
