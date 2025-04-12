@@ -26,50 +26,46 @@ export default function Home() {
     textShadow: '0px -1px 1px rgba(255, 255, 255, 0.8)'
   };
 
-  const loginTextStyle = {
-    color: 'white !important'
-  };
-
   return (
-    <main className="min-h-screen relative bg-white">
-      <div className="absolute top-[45px] flex items-center gap-6">
+    <main className="min-h-screen bg-white relative">
+      {/* Navigation */}
+      <nav className="fixed top-0 left-0 right-0 p-8 flex justify-end items-center gap-8 z-10">
         <Link 
           href="/signup" 
-          className={`absolute left-[1300px] ${poppins.className} text-[24px] leading-[1] whitespace-nowrap font-semibold`}
+          className={`${poppins.className} text-2xl font-semibold hover:opacity-80 transition-opacity`}
           style={signUpStyle}
         >
           Sign Up
         </Link>
         <Link
           href="/login"
-          className="absolute left-[1450px] w-[135px] h-[60px] flex items-center justify-center rounded-[20px] hover:opacity-90 transition-opacity"
+          className="w-[135px] h-[60px] flex items-center justify-center rounded-[20px] hover:opacity-90 transition-opacity"
           style={buttonGradient}
         >
           <span 
-            className={`${poppins.className} text-[24px] leading-none tracking-[0%] font-semibold w-[71px] h-[29px] flex items-center justify-center`}
-            style={loginTextStyle}
+            className={`${poppins.className} text-2xl font-semibold text-white`}
           >
             Log In
           </span>
         </Link>
-      </div>
-      
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[60%]">
-        <h1 
-          className="font-inter text-[96px] leading-none tracking-[0%] font-bold text-center"
-          style={textShadowStyle}
-        >
-          OutTheGC
-        </h1>
-      </div>
-      
-      <div className="absolute top-[52%] left-1/2 -translate-x-1/2">
-        <p 
-          className="font-inter text-[40px] leading-none tracking-[0%] font-bold text-center"
-          style={textShadowStyle}
-        >
-          making moves, for real.
-        </p>
+      </nav>
+
+      {/* Main Content */}
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <div className="text-center space-y-6">
+          <h1 
+            className={`text-[96px] leading-none font-bold`}
+            style={textShadowStyle}
+          >
+            OutTheGC
+          </h1>
+          <p 
+            className="text-[40px] leading-tight font-bold"
+            style={textShadowStyle}
+          >
+            making moves, for real.
+          </p>
+        </div>
       </div>
     </main>
   );
