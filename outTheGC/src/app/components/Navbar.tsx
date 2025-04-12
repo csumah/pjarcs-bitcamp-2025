@@ -9,7 +9,7 @@ import { HiPlus } from "react-icons/hi";
 
 const navItems = [
   { icon: HiHome, href: '/homepage', label: 'Home' },
-  { icon: HiUserGroup, href: '#', label: 'Groups' },
+  { icon: HiUserGroup, href: '/groups', label: 'Groups' },
   { icon: HiCalendar, href: '#', label: 'Events' },
   { icon: HiPlus, href: '#', label: 'Create' }
 ];
@@ -18,7 +18,7 @@ export default function Navbar() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed left-0 top-0 h-screen w-16 md:w-20 bg-[#F4A460] flex flex-col items-center py-8">
+    <nav className="fixed left-0 top-0 h-full w-[85px] bg-gradient-to-b from-[#F4C998] to-[#F7AE5A] flex flex-col items-center py-8 space-y-8">
       {navItems.map((item) => {
         const isActive = pathname === item.href;
         

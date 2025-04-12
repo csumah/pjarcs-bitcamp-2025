@@ -49,7 +49,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white">
-      <div className="bg-[#F4A460] rounded-2xl p-12 shadow-2xl w-[500px] text-center transform hover:shadow-3xl transition-all duration-300">
+      <div className="bg-gradient-to-b from-[#F4C998] to-[#F7AE5A] rounded-2xl p-12 shadow-2xl w-[500px] text-center transform hover:shadow-3xl transition-all duration-300">
         <h1 className="text-6xl font-bold text-white mb-4">OutTheGC</h1>
         <p className="text-2xl text-white mb-12">making moves, for real.</p>
         
