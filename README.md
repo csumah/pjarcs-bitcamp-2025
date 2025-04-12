@@ -1,7 +1,7 @@
 # OutTheGC
 A collaborative event planning web application that helps friendgroups follow through with plans - finally getting them *out of the group chat*.
 
-## Team - Celestine Sumah, Ashley Rabino, and Prajita Shrestha!
+## Team - Celestine Sumah, Ashley Rabino, Bella Goltser, and Prajita Shrestha!
 
 # Main Idea
 - Create and manage friend groups
