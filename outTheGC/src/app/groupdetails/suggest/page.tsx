@@ -51,19 +51,29 @@ export default function SuggestEvents() {
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY || '' });
 
+      // Get current date for context
+      const currentDate = new Date();
+      const dateString = currentDate.toISOString().split('T')[0];
+
       const prompt = `Generate 4 event suggestions for a group activity with the following preferences:
       Location: ${location}
+      Current Date: ${dateString} (all suggested dates must be after this date)
       ${activities ? `Preferred Activities: ${activities}` : ''}
-      ${preferredDays ? `Preferred Days: ${preferredDays}` : ''}
+      ${preferredDays ? `Preferred Days: ${preferredDays}` : 'Preferred Days: Any day after the current date'}
       ${preferredTimes ? `Preferred Times: ${preferredTimes}` : ''}
       ${additionalDetails ? `Additional Details: ${additionalDetails}` : ''}
+      
+      Important Requirements:
+      - All suggested dates must be after ${dateString}
+      - Dates should be in YYYY-MM-DD format
+      - If no preferred days are specified, suggest dates within the next 2 weeks
       
       Format each suggestion as a JSON object with these fields:
       {
         "name": "Event name",
         "description": "Brief description",
         "location": "Specific location",
-        "suggestedDate": "Suggested date",
+        "suggestedDate": "Suggested date (YYYY-MM-DD format)",
         "suggestedTime": "Suggested time",
         "estimatedBudget": "Estimated cost per person"
       }`;

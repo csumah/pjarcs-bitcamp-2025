@@ -6,6 +6,7 @@ import Logo, { poppins } from '../components/Logo';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import EventService, { Event } from '../services/eventService';
+import { CalendarEvents } from '../components/CalendarContent';
 
 interface Group {
   id: number;
@@ -134,20 +135,7 @@ export default function Homepage() {
           {/* Right Side: Calendars */}
           <div className="rounded-xl shadow bg-gradient-to-br from-[#F4C998] to-[#F7AE5A] p-4 h-full">
             <div className="text-white text-xl font-bold mb-4">Calendars</div>
-
-            <div className="mb-6">
-              <div className="text-white font-semibold mb-2">Group 1</div>
-              <div className="bg-white p-2 rounded shadow text-center text-sm text-gray-500">
-                [ Calendar Placeholder ]
-              </div>
-            </div>
-
-            <div>
-              <div className="text-white font-semibold mb-2">Group 2</div>
-              <div className="bg-white p-2 rounded shadow text-center text-sm text-gray-500">
-                [ Calendar Placeholder ]
-              </div>
-            </div>
+            <CalendarEvents />
           </div>
         </div>
       </div>

@@ -22,9 +22,35 @@ export default function CreateEvent() {
   const [budget, setBudget] = useState(searchParams.get('budget') || '');
   const [splitBudget, setSplitBudget] = useState<'yes' | 'no' | null>(null);
 
+  // Add helper function to validate budget format
+  const validateBudget = (value: string) => {
+    if (!value) return true; // Empty budget is valid
+    
+    // Check if it's a range (contains a hyphen)
+    if (value.includes('-')) {
+      const [min, max] = value.split('-');
+      const minNum = Number(min);
+      const maxNum = Number(max);
+      return !isNaN(minNum) && !isNaN(maxNum) && minNum >= 0 && maxNum > minNum;
+    }
+    
+    // Single number validation
+    return !isNaN(Number(value)) && Number(value) >= 0;
+  };
+
+  // Add helper function to check if budget has value
+  const hasBudgetValue = (value: string) => {
+    if (!value) return false;
+    if (value.includes('-')) {
+      const [min, max] = value.split('-');
+      return Number(min) > 0 || Number(max) > 0;
+    }
+    return Number(value) > 0;
+  };
+
   useEffect(() => {
     // Set split budget if budget is provided
-    if (budget && Number(budget) > 0) {
+    if (hasBudgetValue(budget)) {
       setSplitBudget('no');
     }
   }, []);
@@ -33,6 +59,7 @@ export default function CreateEvent() {
     // Basic validation
     if (!eventName.trim() || !startDate || !groupId) return;
     if (endTime && !startTime) return; // Can't have end time without start time
+    if (!validateBudget(budget)) return; // Validate budget format
 
     // Get group info
     const groups = JSON.parse(localStorage.getItem('groups') || '[]');
@@ -52,8 +79,8 @@ export default function CreateEvent() {
       location,
       date: startDate,
       time: startTime || '',
-      budget: Number(budget) > 0 ? budget : '',
-      splitBudget: Number(budget) > 0 ? splitBudget === 'yes' : false,
+      budget: budget || '',
+      splitBudget: hasBudgetValue(budget) ? splitBudget === 'yes' : false,
       createdAt: new Date().toISOString()
     };
 
@@ -66,8 +93,8 @@ export default function CreateEvent() {
       description,
       date: startDate,
       time: startTime || '',
-      budget: Number(budget) > 0 ? budget : '',
-      splitBudget: Number(budget) > 0 ? splitBudget === 'yes' : false,
+      budget: budget || '',
+      splitBudget: hasBudgetValue(budget) ? splitBudget === 'yes' : false,
       members: group.members
     });
 
@@ -79,7 +106,8 @@ export default function CreateEvent() {
     !eventName.trim() || 
     !startDate || 
     (endTime && !startTime) || 
-    (Number(budget) > 0 && splitBudget === null)  // Only require split budget choice if budget > 0
+    (hasBudgetValue(budget) && splitBudget === null) ||  // Only require split budget choice if budget > 0
+    !validateBudget(budget)  // Add budget format validation
   );
 
   return (
@@ -199,20 +227,25 @@ export default function CreateEvent() {
                         </h3>
                     
                         <input
-                            type="number"
-                            placeholder="Set budget (optional)"
+                            type="text"
+                            placeholder="Set budget (optional) - Use single number or range (e.g., 100 or 100-200)"
                             value={budget}
                             onChange={(e) => {
                                 setBudget(e.target.value);
-                                if (!e.target.value) {
+                                if (!hasBudgetValue(e.target.value)) {
                                     setSplitBudget(null);
                                 }
                             }}
-                            className="w-full p-4 text-lg border-b border-[#F4A460]/30 bg-transparent placeholder-[#999] text-black focus:outline-none focus:border-[#F4A460]"
+                            className={`w-full p-4 text-lg border-b border-[#F4A460]/30 bg-transparent placeholder-[#999] text-black focus:outline-none focus:border-[#F4A460] ${!validateBudget(budget) && budget ? 'border-red-500' : ''}`}
                         />
+                        {!validateBudget(budget) && budget && (
+                            <p className="text-red-500 text-sm mt-1">
+                                Please enter a valid budget (single number or range like 100-200)
+                            </p>
+                        )}
 
                         {/* Only show split budget options when budget has a value */}
-                        {Number(budget) > 0 && (
+                        {hasBudgetValue(budget) && (
                             <div className="space-y-2 transition-all duration-300">
                                 <p className="text-[#999]">Split budget</p>
                                 <div className="flex gap-4">

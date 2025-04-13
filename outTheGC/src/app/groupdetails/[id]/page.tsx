@@ -9,6 +9,7 @@ import EventService from '../../services/eventService';
 import Link from 'next/link';
 import { HiPlus } from 'react-icons/hi';
 import { FaLightbulb, FaTrash } from 'react-icons/fa';
+import GroupCalendar from '../../components/GroupCalendar';
 
 interface Event {
   id: string;
@@ -231,24 +232,28 @@ const GroupDetailsPage: FC = () => {
 
             {/* Calendar Box */}
             <div
-              className="rounded-[20px] h-[400px]"
+              className="rounded-[20px] h-[550px] p-4"
               style={{
                 background: 'linear-gradient(180deg, #F4C998 0%, #F7AE5A 100%)',
                 boxShadow: '4px 4px 9px 0px rgba(0, 0, 0, 0.25)',
+                display: 'flex',
+                flexDirection: 'column'
               }}
             >
               <h2
-                className="text-white font-inter font-bold ml-6"
+                className="text-white font-inter font-bold mb-2"
                 style={{
                   fontWeight: 700,
-                  fontSize: '32px',
+                  fontSize: '24px',
                   lineHeight: '100%',
                   letterSpacing: '0%',
-                  padding: '20px',
                 }}
               >
                 Calendar
               </h2>
+              <div className="flex-1">
+                <GroupCalendar events={events} />
+              </div>
             </div>
           </div>
 
@@ -276,7 +281,7 @@ const GroupDetailsPage: FC = () => {
 
             {/* Members Box */}
             <div
-              className="rounded-[20px] h-[662px]"
+              className="rounded-[20px] h-[600px]"
               style={{
                 background: 'linear-gradient(180deg, #F4C998 0%, #F7AE5A 100%)',
                 boxShadow: '4px 4px 9px 0px rgba(0, 0, 0, 0.25)',

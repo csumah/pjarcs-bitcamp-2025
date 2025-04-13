@@ -1,24 +1,22 @@
+'use client';
+
 import React from 'react';
 import Navbar from '../components/Navbar';
-import CalendarContent from '../components/CalendarContent';
-import { Poppins } from 'next/font/google';
+import Logo, { poppins } from '../components/Logo';
+import CalendarComponentWithAuth from '../components/CalendarContent';
 
-const poppins = Poppins({
-  subsets: ['latin'],
-  weight: ['600'],
-});
-
-// This is your main page component for the Calendar view
-export default function Calendar() {
+export default function CalendarPage() {
   return (
-    // Main flex container for the page layout
-    <div className={`flex h-screen bg-white ${poppins.className}`}>
-      {/* Render your Sidebar Navbar component */}
+    <div className="flex min-h-screen bg-[#F5F5F5]">
       <Navbar />
-
-      {/* Render the Calendar Content component alongside the Navbar */}
-      {/* This assumes CalendarContent handles the main content area styling (flex-1, padding, etc.) */}
-      <CalendarContent />
+      <div className={`${poppins.className} flex-1 flex flex-col p-6 sm:p-8 lg:p-10`}>
+        <div className="flex justify-end mb-8">
+          <Logo />
+        </div>
+        <div className="flex-1">
+          <CalendarComponentWithAuth />
+        </div>
+      </div>
     </div>
   );
 }
