@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '../../components/Navbar';
 import Logo, { poppins } from '../../components/Logo';
+import GroupService from '../../services/groupService';
 
 export default function CreateGroup() {
   const router = useRouter();
@@ -28,19 +29,13 @@ export default function CreateGroup() {
       name: groupName,
       description,
       members: friendEmails.filter(email => email.trim() !== ''),
-      createdAt: new Date().toISOString(),
     };
 
-    // Store in localStorage for now
-    const existingGroups = JSON.parse(localStorage.getItem('groups') || '[]');
-    const newGroup = {
-      id: Date.now(), // Simple way to generate unique ID
-      ...groupData
-    };
-    localStorage.setItem('groups', JSON.stringify([...existingGroups, newGroup]));
+    // Create group using the service
+    const newGroup = GroupService.createGroup(groupData);
 
-    // Navigate to event creation page instead of groups page
-    router.push('/groups/create/event');
+    // Navigate to event creation page with the group ID
+    router.push(`/groups/create/event?groupId=${newGroup.id}`);
   };
 
   const isNextDisabled = !groupName.trim();
