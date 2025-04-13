@@ -6,17 +6,16 @@ A collaborative event planning web application that helps friendgroups follow th
 # Main Idea
 - Create and manage friend groups
 - Suggest and organize events
-- Split the costs between members
-- Assign roles and coordinate plans
+- Coordinate plans among members
 
 ## Tech Stack
-- Next.js + Figma
-- Supabase + Auth
-- Host the website on Vercel
+- Next.js + Tailwind CSS
+- Firebase for Authentication
+- Website Hosted on Vercel
 
 ## Main Features
-- Email/Password login
-- Create or join friend groups via invitation links
+- Gmail login
+- Create and Join New Groups
 - Suggest and plan events inside friend groups
-- Sync events with Google calendar
-- Create itinerary with time/location/cost
+- Sync and track events with Google calendar
+- Lacking ideas? With the Gemini API, we created a chatbot to suggest plans!
