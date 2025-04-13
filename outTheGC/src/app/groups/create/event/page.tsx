@@ -13,27 +13,35 @@ export default function CreateEvent() {
   
   const [eventName, setEventName] = useState('');
   const [description, setDescription] = useState('');
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
+  const [location, setLocation] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
   const [budget, setBudget] = useState('');
   const [splitBudget, setSplitBudget] = useState<'yes' | 'no' | null>(null);
 
-  useEffect(() => {
-    if (!groupId) {
-      router.push('/groups');
-    }
-  }, [groupId, router]);
+  const handleSubmit = () => {
+    if (!eventName.trim() || !startDate) return;
+    if (endTime && !startTime) return; // Can't have end time without start time
 
   const handleSubmit = () => {
     if (!eventName.trim() || !date || !time || !groupId) return;
 
-    const eventData = {
-      name: eventName,
-      description,
-      date,
-      time,
-      budget: budget || '0',
-      splitBudget: splitBudget === 'yes',
+    // Add event details to the group
+    const updatedGroup = {
+      ...currentGroup,
+      event: {
+        name: eventName,
+        description,
+        location,
+        startDate,
+        endDate,
+        startTime,
+        endTime,
+        budget: budget || '0',
+        splitBudget: splitBudget === 'yes',
+      },
     };
 
     // Add event to group using the service
@@ -48,7 +56,7 @@ export default function CreateEvent() {
     }
   };
 
-  const isCreateDisabled = !eventName.trim() || !date || !time;
+  const isCreateDisabled = Boolean(!eventName || eventName.trim() === '' || !startDate || (endTime && !startTime));
 
   return (
     <div className="min-h-screen flex">
@@ -74,7 +82,7 @@ export default function CreateEvent() {
                             placeholder="Name your first event"
                             value={eventName}
                             onChange={(e) => setEventName(e.target.value)}
-                            className="w-full p-4 text-lg border-b border-[#F4A460]/30 bg-transparent placeholder-[#999] focus:outline-none focus:border-[#F4A460]"
+                            className="w-full p-4 text-lg border-b border-[#F4A460]/30 bg-transparent placeholder-[#999] text-black focus:outline-none focus:border-[#F4A460]"
                         />
                     </div>
 
@@ -85,7 +93,18 @@ export default function CreateEvent() {
                             placeholder="Add description... (optional)"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            className="w-full p-4 text-lg border-b border-[#F4A460]/30 bg-transparent placeholder-[#999] focus:outline-none focus:border-[#F4A460]"
+                            className="w-full p-4 text-lg border-b border-[#F4A460]/30 bg-transparent placeholder-[#999] text-black focus:outline-none focus:border-[#F4A460]"
+                        />
+                    </div>
+
+                    {/* Location */}
+                    <div>
+                        <input
+                            type="text"
+                            placeholder="Add location..."
+                            value={location}
+                            onChange={(e) => setLocation(e.target.value)}
+                            className="w-full p-4 text-lg border-b border-[#F4A460]/30 bg-transparent placeholder-[#999] text-black focus:outline-none focus:border-[#F4A460]"
                         />
                     </div>
 
@@ -95,21 +114,57 @@ export default function CreateEvent() {
                             Date & Time
                         </h3>
                     
-                        <input
-                            type="date"
-                            placeholder="Set date"
-                            value={date}
-                            onChange={(e) => setDate(e.target.value)}
-                            className="w-full p-4 text-lg border-b border-[#F4A460]/30 bg-transparent placeholder-[#999] focus:outline-none focus:border-[#F4A460]"
-                        />
-                    
-                        <input
-                            type="time"
-                            placeholder="Set time"
-                            value={time}
-                            onChange={(e) => setTime(e.target.value)}
-                            className="w-full p-4 text-lg border-b border-[#F4A460]/30 bg-transparent placeholder-[#999] focus:outline-none focus:border-[#F4A460]"
-                        />
+                        {/* Date Inputs */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <p className="text-[#999] mb-2 text-sm">Start Date*</p>
+                                <input
+                                    type="date"
+                                    value={startDate}
+                                    onChange={(e) => setStartDate(e.target.value)}
+                                    className="w-full p-4 text-lg border-b border-[#F4A460]/30 bg-transparent placeholder-[#999] text-black focus:outline-none focus:border-[#F4A460]"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <p className="text-[#999] mb-2 text-sm">End Date (Optional)</p>
+                                <input
+                                    type="date"
+                                    value={endDate}
+                                    onChange={(e) => setEndDate(e.target.value)}
+                                    min={startDate}
+                                    className="w-full p-4 text-lg border-b border-[#F4A460]/30 bg-transparent placeholder-[#999] text-black focus:outline-none focus:border-[#F4A460]"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Time Inputs */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <p className="text-[#999] mb-2 text-sm">Start Time (Optional)</p>
+                                <input
+                                    type="time"
+                                    value={startTime}
+                                    onChange={(e) => setStartTime(e.target.value)}
+                                    className="w-full p-4 text-lg border-b border-[#F4A460]/30 bg-transparent placeholder-[#999] text-black focus:outline-none focus:border-[#F4A460]"
+                                />
+                            </div>
+                            <div>
+                                <p className="text-[#999] mb-2 text-sm">End Time (Optional)</p>
+                                <input
+                                    type="time"
+                                    value={endTime}
+                                    onChange={(e) => {
+                                        if (!startTime && e.target.value) {
+                                            alert('Please set a start time first');
+                                            return;
+                                        }
+                                        setEndTime(e.target.value);
+                                    }}
+                                    className="w-full p-4 text-lg border-b border-[#F4A460]/30 bg-transparent placeholder-[#999] text-black focus:outline-none focus:border-[#F4A460]"
+                                />
+                            </div>
+                        </div>
                     </div>
 
                     {/* Budget Section */}
@@ -123,35 +178,38 @@ export default function CreateEvent() {
                             placeholder="Set budget (optional)"
                             value={budget}
                             onChange={(e) => setBudget(e.target.value)}
-                            className="w-full p-4 text-lg border-b border-[#F4A460]/30 bg-transparent placeholder-[#999] focus:outline-none focus:border-[#F4A460]"
+                            className="w-full p-4 text-lg border-b border-[#F4A460]/30 bg-transparent placeholder-[#999] text-black focus:outline-none focus:border-[#F4A460]"
                         />
 
-                        <div className="space-y-2">
-                            <p className="text-[#999]">Split budget</p>
-                            <div className="flex gap-4">
-                                <label className="flex items-center space-x-2">
-                                    <input
-                                    type="radio"
-                                    name="splitBudget"
-                                    checked={splitBudget === 'yes'}
-                                    onChange={() => setSplitBudget('yes')}
-                                    className="text-[#F4A460] focus:ring-[#F4A460]"
-                                    />
-                                    <span className="text-[#999]">Yes</span>
-                                </label>
-                            
-                                <label className="flex items-center space-x-2">
-                                    <input
-                                    type="radio"
-                                    name="splitBudget"
-                                    checked={splitBudget === 'no'}
-                                    onChange={() => setSplitBudget('no')}
-                                    className="text-[#F4A460] focus:ring-[#F4A460]"
-                                    />
-                                    <span className="text-[#999]">No</span>
-                                </label>
+                        {/* Only show split budget options when budget has a value */}
+                        {budget && budget !== '0' && (
+                            <div className="space-y-2 transition-all duration-300">
+                                <p className="text-[#999]">Split budget</p>
+                                <div className="flex gap-4">
+                                    <label className="flex items-center space-x-2">
+                                        <input
+                                        type="radio"
+                                        name="splitBudget"
+                                        checked={splitBudget === 'yes'}
+                                        onChange={() => setSplitBudget('yes')}
+                                        className="text-[#F4A460] focus:ring-[#F4A460]"
+                                        />
+                                        <span className="text-[#999]">Yes</span>
+                                    </label>
+                                
+                                    <label className="flex items-center space-x-2">
+                                        <input
+                                        type="radio"
+                                        name="splitBudget"
+                                        checked={splitBudget === 'no'}
+                                        onChange={() => setSplitBudget('no')}
+                                        className="text-[#F4A460] focus:ring-[#F4A460]"
+                                        />
+                                        <span className="text-[#999]">No</span>
+                                    </label>
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
 
                     {/* Create Event Button */}
