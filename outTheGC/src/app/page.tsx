@@ -11,8 +11,7 @@ export default function Home() {
     textShadow: `
       0 4px 4px rgba(0,0,0,0.45),
       2px 2px 2px rgba(247, 174, 90, 0.8),
-      -1px -1px 1px rgba(247, 174, 90, 0.4),
-      0 8px 12px rgba(0,0,0,0.25)
+      -1px -1px 1px rgba(247, 174, 90, 0.4)
     `,
     color: '#F7AE5A'
   };

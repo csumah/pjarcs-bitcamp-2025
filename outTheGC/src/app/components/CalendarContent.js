@@ -1,190 +1,177 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { LogIn, LogOut } from 'lucide-react'; // Only import icons used in this component
+import React, { useState, useEffect } from 'react';
+import { LogIn, LogOut } from 'lucide-react';
 
-// --- Configuration Constants ---
-// IMPORTANT: Make sure these are your actual credentials
-const GOOGLE_API_KEY = 'AIzaSyAmZZkSxo6gLWnMI7IlwVWBov7KaR_H8Ik'; // Replace if you haven't already
-const GOOGLE_CLIENT_ID = '118688014672-tgnpascibcoo1bgt63l8fhro7nbepmsp.apps.googleusercontent.com'; // Replace if you haven't already
+const GOOGLE_CLIENT_ID = '118688014672-tgnpascibcoo1bgt63l8fhro7nbepmsp.apps.googleusercontent.com';
 const SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
-const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest';
 
 const CalendarComponentWithAuth = () => {
-  // State variables
-  const [gapiLoaded, setGapiLoaded] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [error, setError] = useState(null);
-  // Add state for events later: const [events, setEvents] = useState([]);
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [tokenClient, setTokenClient] = useState(null);
 
-  // --- Callback Functions ---
-
-  // Updates the sign-in state
-  const updateSigninStatus = useCallback((signedIn) => {
-    setIsSignedIn(signedIn);
-    setError(null);
-    if (signedIn) {
-      // TODO: Fetch calendar events when signed in
-      console.log("User is signed in. Ready to fetch events.");
-      // fetchEvents(); // Example function call
-    } else {
-       // Clear events if needed when signed out
-       // setEvents([]);
-    }
-  }, []); // Empty dependency array, relies on GAPI instance state
-
-  // Initializes the GAPI client
-  const initializeGapiClient = useCallback(async () => {
-    // Defensive check if gapi is available
-    if (!window.gapi) {
-        console.error("window.gapi is not available. Script might not have loaded.");
-        setError("Google API script failed to load.");
-        setGapiLoaded(true); // Mark as 'loaded' to show error
-        return;
-    }
-
-    try {
-      await window.gapi.client.init({
-        apiKey: GOOGLE_API_KEY,
-        clientId: GOOGLE_CLIENT_ID,
-        scope: SCOPES,
-        discoveryDocs: [DISCOVERY_DOC],
-      });
-      console.log('GAPI client initialized.');
-      setGapiLoaded(true);
-
-      // Listen for sign-in state changes
-      window.gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
-
-      // Set the initial sign-in state
-      updateSigninStatus(window.gapi.auth2.getAuthInstance().isSignedIn.get());
-
-    } catch (err) {
-      console.error('Error initializing GAPI client:', err);
-      setError(`Error initializing Google Client: ${err.message || JSON.stringify(err)}`);
-      setGapiLoaded(true); // Mark as loaded to show error
-    }
-  }, [updateSigninStatus]);
-
-  // Loads the GAPI script
-  const loadGapiScript = useCallback(() => {
-    if (document.getElementById('google-api-script')) {
-      console.log('GAPI script potentially already loaded.');
-       // Ensure initialization happens if script exists but gapi isn't ready
-      if (window.gapi && !gapiLoaded) {
-         window.gapi.load('client:auth2', initializeGapiClient);
-      } else if (window.gapi && gapiLoaded) {
-          // Already loaded and initialized (or tried to init)
-          console.log('GAPI already loaded and init attempted.');
-      }
-      return;
-    }
-
-    console.log('Loading GAPI script...');
+  useEffect(() => {
+    // Load the Google Identity Services script
     const script = document.createElement('script');
-    script.id = 'google-api-script';
-    script.src = 'https://apis.google.com/js/api.js';
+    script.src = 'https://accounts.google.com/gsi/client';
     script.async = true;
     script.defer = true;
-    script.onload = () => {
-      console.log('GAPI script loaded via onload.');
-      // Load the client and auth2 libraries, then initialize
-      window.gapi.load('client:auth2', initializeGapiClient);
-    };
-    script.onerror = () => {
-        console.error('Failed to load GAPI script.');
-        setError('Failed to load the Google API script. Check network/ad blocker.');
-        setGapiLoaded(true);
-    }
+    script.onload = initializeGoogleAuth;
     document.body.appendChild(script);
-  }, [initializeGapiClient, gapiLoaded]);
 
-  // --- Effects ---
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
-  // Load the GAPI script on component mount
-  useEffect(() => {
-    // Basic check for actual credentials
-    if (GOOGLE_API_KEY === 'YOUR_GOOGLE_API_KEY' || GOOGLE_CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID') {
-        setError("API Key or Client ID is not set. Please update the code.");
-        setGapiLoaded(true);
-        return;
+  const initializeGoogleAuth = () => {
+    try {
+      if (!window.google) {
+        throw new Error('Google API not loaded');
+      }
+
+      // Initialize the token client
+      const client = window.google.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CLIENT_ID,
+        scope: SCOPES,
+        callback: (tokenResponse) => {
+          if (tokenResponse && tokenResponse.access_token) {
+            fetchCalendarEvents(tokenResponse.access_token);
+          }
+        }
+      });
+      setTokenClient(client);
+
+      // Initialize the Google Identity Services with minimal configuration
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleCredentialResponse
+      });
+
+      // Render the sign-in button with minimal configuration
+      const buttonDiv = document.getElementById('googleSignInButton');
+      if (buttonDiv) {
+        window.google.accounts.id.renderButton(
+          buttonDiv,
+          { theme: 'outline', size: 'large' }
+        );
+      }
+    } catch (err) {
+      console.error('Error initializing Google Auth:', err);
+      setError(`Error initializing Google Auth: ${err.message}`);
     }
-    loadGapiScript();
-    // Note: No cleanup needed for this script loading pattern
-  }, [loadGapiScript]);
+  };
 
-  // --- Event Handlers ---
-  const handleSignInClick = () => {
-    if (!window.gapi || !window.gapi.auth2 || !gapiLoaded) {
-      console.error('GAPI auth2 instance not available or not loaded.');
-      setError('Google API not ready. Please wait or refresh.');
-      return;
+  const fetchCalendarEvents = async (accessToken) => {
+    try {
+      setLoading(true);
+      const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch calendar events');
+      }
+
+      const data = await response.json();
+      setEvents(data.items || []);
+    } catch (err) {
+      console.error('Error fetching calendar events:', err);
+      setError(`Error fetching calendar events: ${err.message}`);
+    } finally {
+      setLoading(false);
     }
-    window.gapi.auth2.getAuthInstance().signIn().catch((err) => {
-      console.error('Error signing in:', err);
-      setError(`Sign-in failed: ${err.details || err.error || 'Popup closed or error occurred.'}`);
+  };
+
+  const handleCredentialResponse = async (response) => {
+    if (response.credential) {
+      setIsSignedIn(true);
+      setError(null);
+      if (tokenClient) {
+        tokenClient.requestAccessToken();
+      }
+    }
+  };
+
+  const handleSignOut = () => {
+    setIsSignedIn(false);
+    setEvents([]);
+    if (tokenClient) {
+      window.google.accounts.oauth2.revoke(tokenClient.access_token, () => {
+        console.log('Access token revoked');
+      });
+    }
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
     });
   };
 
-  const handleSignOutClick = () => {
-     if (!window.gapi || !window.gapi.auth2 || !gapiLoaded) {
-      console.error('GAPI auth2 instance not available or not loaded.');
-      return;
-    }
-    window.gapi.auth2.getAuthInstance().signOut().catch((err) => {
-      console.error('Error signing out:', err);
-      setError(`Sign-out failed: ${err.details || err.error}`);
-    });
-  };
-
-  // --- Render Logic ---
   return (
-    // Main Content Area Container (assumes parent is flex)
     <div className="flex-1 p-6 md:p-10 overflow-y-auto bg-gray-50">
-      <div className="bg-white rounded-xl shadow-lg p-6 h-full flex flex-col">
-        {/* Header Area */}
+      <div className="bg-gradient-to-b from-[#F4C998] to-[#F7AE5A] rounded-xl shadow-lg p-6 h-full flex flex-col">
         <div className="flex justify-between items-center mb-4 flex-shrink-0">
-          <h2 className="text-2xl font-semibold text-gray-800">
+          <h2 className="text-3xl font-bold text-white">
             Shared Google Calendar
           </h2>
-          {/* Auth Button Area */}
           <div>
-            {!gapiLoaded && !error && <span className="text-sm text-gray-500">Initializing...</span>}
-            {gapiLoaded && !error && (
-              isSignedIn ? (
-                <button onClick={handleSignOutClick} className="bg-red-100 text-red-700 hover:bg-red-200 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors">
-                  <LogOut size={16} /> Sign Out
-                </button>
-              ) : (
-                <button onClick={handleSignInClick} className="bg-blue-100 text-blue-700 hover:bg-blue-200 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors">
-                  <LogIn size={16} /> Connect Google Calendar
-                </button>
-              )
+            {!isSignedIn ? (
+              <div id="googleSignInButton"></div>
+            ) : (
+              <button 
+                onClick={handleSignOut} 
+                className="bg-red-100 text-red-700 hover:bg-red-200 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
+              >
+                <LogOut size={16} /> Sign Out
+              </button>
             )}
           </div>
         </div>
 
-        {/* Error Display */}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-800 p-3 rounded-lg mb-4 text-sm flex-shrink-0">
             <strong>Error:</strong> {error}
           </div>
         )}
 
-        {/* Calendar Placeholder Area */}
-        <div className="flex-grow flex items-center justify-center text-center text-gray-500 border-2 border-dashed border-gray-300 rounded-lg min-h-[400px]">
-          {gapiLoaded && isSignedIn ? (
-            <div>
-              [ Google Calendar View Placeholder ]
-              <br />
-              Authentication successful. Ready to fetch events.
-            </div>
-          ) : gapiLoaded && !isSignedIn && !error ? (
-            'Please connect your Google Calendar to view events.'
-          ) : !gapiLoaded && !error ? (
-            'Loading Google API...'
+        <div className="flex-grow flex flex-col items-center justify-center text-center text-white border-2 border-dashed border-white rounded-lg min-h-[400px] p-4">
+          {loading ? (
+            <div className="text-white">Loading calendar events...</div>
+          ) : isSignedIn ? (
+            events.length > 0 ? (
+              <div className="w-full max-w-4xl">
+                <h3 className="text-xl font-semibold mb-4 text-white">Upcoming Events</h3>
+                <div className="space-y-4">
+                  {events.map((event) => (
+                    <div key={event.id} className="bg-gray-50 p-4 rounded-lg text-left">
+                      <div className="font-medium text-gray-800">{event.summary}</div>
+                      <div className="text-sm text-gray-600">
+                        {formatDate(event.start.dateTime || event.start.date)}
+                      </div>
+                      {event.description && (
+                        <div className="text-sm text-gray-500 mt-1">{event.description}</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div>No upcoming events found.</div>
+            )
           ) : (
-            'Cannot display calendar due to error.'
+            'Please connect your Google Calendar to view events.'
           )}
         </div>
       </div>
@@ -192,5 +179,5 @@ const CalendarComponentWithAuth = () => {
   );
 };
 
-export default CalendarComponentWithAuth; // Export the component
+export default CalendarComponentWithAuth;
 

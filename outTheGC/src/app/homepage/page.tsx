@@ -1,5 +1,11 @@
 import React from 'react';
 import Navbar from '../components/Navbar';
+import { Poppins } from 'next/font/google';
+
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['600'],
+});
 
 export default function Homepage() {
   return (
@@ -11,12 +17,12 @@ export default function Homepage() {
   {/* Left Side: Groups on Top, Latest Activity Below */}
   <div className="flex flex-col gap-6">
     <div className="rounded-xl shadow bg-gradient-to-b from-[#F4C998] to-[#F7AE5A] p-4 h-[280px]">
-      <div className="text-white text-xl font-bold mb-4">Groups</div>
+      <div className={`${poppins.className} text-white text-xl font-bold mb-4`}>Groups</div>
       {/* Add groups content here */}
     </div>
 
     <div className="rounded-xl shadow bg-gradient-to-b from-[#F4C998] to-[#F7AE5A] p-4 h-[300px] overflow-y-auto">
-      <div className="text-xl font-bold text-[#F5F5F5] mb-4">Latest Activity</div>
+      <div className={`${poppins.className} text-xl font-bold text-white mb-4`}>Latest Activity</div>
       {[1, 2, 3, 4, 5].map((item) => (
         <div
           key={item}
@@ -34,14 +40,14 @@ export default function Homepage() {
     <div className="text-white text-xl font-bold mb-4">Calendars</div>
 
     <div className="mb-6">
-      <div className="text-white font-semibold mb-2">Group 1</div>
+      <div className={`${poppins.className} text-white font-semibold mb-2`}>Group 1</div>
       <div className="bg-white p-2 rounded shadow text-center text-sm text-gray-500">
         [ Calendar Placeholder ]
       </div>
     </div>
 
     <div>
-      <div className="text-white font-semibold mb-2">Group 2</div>
+      <div className={`${poppins.className} text-white font-semibold mb-2`}>Group 2</div>
       <div className="bg-white p-2 rounded shadow text-center text-sm text-gray-500">
         [ Calendar Placeholder ]
       </div>

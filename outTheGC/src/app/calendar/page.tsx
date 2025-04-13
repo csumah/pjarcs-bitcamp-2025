@@ -1,12 +1,18 @@
 import React from 'react';
-import Navbar from '../components/Navbar'; // Assuming your Navbar is here
-import CalendarContent from '../components/CalendarContent'; // Import the content component you saved previously
+import Navbar from '../components/Navbar';
+import CalendarContent from '../components/CalendarContent';
+import { Poppins } from 'next/font/google';
+
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['600'],
+});
 
 // This is your main page component for the Calendar view
 export default function Calendar() {
   return (
     // Main flex container for the page layout
-    <div className="flex h-screen bg-white font-sans">
+    <div className={`flex h-screen bg-white ${poppins.className}`}>
       {/* Render your Sidebar Navbar component */}
       <Navbar />
 
