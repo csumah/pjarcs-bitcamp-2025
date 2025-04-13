@@ -35,7 +35,7 @@ export default function SuggestEvents() {
     setIsLoading(true);
     if (!location.trim()) return;
     try {
-      const ai = new GoogleGenAI({ apiKey: "AIzaSyDk6Sdx3culfPCOBtDolEF_bZ7OQizxgWc" });
+      const ai = new GoogleGenAI({ apiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY || '' });
 
       const prompt = `Generate 4 event suggestions for a group activity with the following preferences:
       Location: ${location}
