@@ -12,8 +12,7 @@ export default function Homepage() {
   return (
     <div className="flex h-screen bg-white font-sans">
       {/* Sidebar */}
-      <Navbar />
-      
+      <Navbar />   
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col p-6 sm:p-8 lg:p-10">
         {/* Header */}
@@ -45,7 +44,7 @@ export default function Homepage() {
               <div className="text-white text-xl font-bold mb-4">Groups</div>
               {/* Add groups content here */}
             </div>
-
+            
             <div className="rounded-xl shadow bg-gradient-to-b from-[#F4C998] to-[#F7AE5A] p-4 h-[300px] overflow-y-auto">
               <div className="text-xl font-bold text-[#F5F5F5] mb-4">Latest Activity</div>
               {[1, 2, 3, 4, 5].map((item) => (
