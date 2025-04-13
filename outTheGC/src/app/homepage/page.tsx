@@ -38,11 +38,11 @@ export default function Homepage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-white font-sans">
+    <div className="flex min-h-screen bg-[#F5F5F5]">
       {/* Sidebar */}
       <Navbar />   
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col p-6 sm:p-8 lg:p-10">
+      <div className={`${poppins.className} flex-1 flex flex-col p-6 sm:p-8 lg:p-10`}>
         {/* Header */}
         <div className="flex justify-end mb-8">
           <Logo />

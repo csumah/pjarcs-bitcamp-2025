@@ -31,7 +31,7 @@ const GroupDetailsPage: FC = () => {
 
   if (!group) {
     return (
-      <div className="flex min-h-screen bg-white">
+      <div className="flex min-h-screen bg-[#F5F5F5]">
         <Navbar />
         <div className="flex-1 p-3">
           <div className="flex items-center justify-between">
@@ -46,7 +46,7 @@ const GroupDetailsPage: FC = () => {
   }
 
   return (
-    <div className="flex min-h-screen bg-white">
+    <div className="flex min-h-screen bg-[#F5F5F5]">
       <Navbar />
       {/* Main Content */}
       <div className="flex-1 p-6">
@@ -89,14 +89,26 @@ const GroupDetailsPage: FC = () => {
               <div 
                 className="flex flex-col items-center space-y-6 overflow-y-auto px-6" 
                 style={{ 
-                  height: 'calc(100% - 80px)',
-                  paddingTop: '20px',
                   scrollbarWidth: 'thin',
                   scrollbarColor: '#F7AE5A transparent'
                 }}
               >
+                {/* Create New Event Card */}
+                <Link 
+                  href={`/groups/create/event?groupId=${group.id}`}
+                  className="block rounded-[24px] border-2 border-[#FFF5EE]/75 bg-transparent p-4 shadow-sm hover:bg-[#FFF5EE]/10 transition-colors no-underline text-inherit w-full"
+                >
+                  <div className="flex flex-col h-[150px] items-center justify-center">
+                    <HiPlus className="h-12 w-12 text-[#FFF5EE]/75" />
+                    <span className={`mt-2 text-[#FFF5EE]/75 text-lg ${poppins.className}`}>
+                      Create New Event
+                    </span>
+                  </div>
+                </Link>
+
+                {/* Event Cards */}
                 {group.event && (
-                  <div className="bg-[#F5F5F5]/75 rounded-[24px] p-4 shadow-sm">
+                  <div className="bg-[#F5F5F5]/75 rounded-[24px] p-4 shadow-sm w-full">
                     <div className="flex flex-col h-[150px]">
                       <div className="flex-1">
                         <h3 className={`text-xl font-semibold mb-1 ${poppins.className} text-[#F4A460] truncate`}>
@@ -126,15 +138,6 @@ const GroupDetailsPage: FC = () => {
                     </div>
                   </div>
                 )}
-
-                {/* Create New Event Card */}
-                <Link 
-                  href={`/groups/create/event?groupId=${group.id}`}
-                  className="block rounded-[24px] w-[450px] h-[150px] border-2 border-[#FFF5EE]/75 bg-transparent p-4 sm:p-6 md:p-8 mt-[65px] mx-[5px] flex items-center justify-center hover:bg-[#FFF5EE]/10 transition-colors no-underline text-inherit">
-                  <div className="flex flex-col h-[150px] items-center justify-center">
-                    <HiPlus className="h-12 w-12 text-[#FFF5EE]/75" />
-                  </div>
-                </Link>
               </div>
             </div>
 

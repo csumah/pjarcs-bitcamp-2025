@@ -47,14 +47,14 @@ export default function GroupsPage() {
   };
 
   return (
-    <div className="min-h-screen relative bg-white">
+    <div className="min-h-screen relative bg-[#F5F5F5]">
       {/** Navigation Bar **/}
       <Navbar />
       
       {/** Main Body **/}
       <main className="flex-1 p-4 sm:p-8 md:p-8 lg:p-10">
         <div className="flex items-center justify-between mb-2">
-          <h1 className={`ml-[125px] top-[45px] text-4xl sm:text-5xl font-bold ${poppins.className} text-[#F4A460] [text-shadow:_1px_1px_2px_rgb(0_0_0_/_20%)]`}>
+          <h1 className={`ml-[100px] text-6xl font-bold ${poppins.className} text-[#F4A460] [text-shadow:_1px_1px_2px_rgb(0_0_0_/_20%)]`}>
             Groups
           </h1>
           <Logo />
@@ -68,7 +68,7 @@ export default function GroupsPage() {
               {groups.map((group) => (
                 <div key={group.id} className="relative">
                   <Link href={`/groupdetails/${group.id}`} 
-                    className="block bg-[#F5F5F5]/75 backdrop-blur-sm rounded-[24px] shadow-sm p-4 sm:p-6 md:p-8 mt-[65px] mx-[5px] hover:shadow-md transition-shadow no-underline text-inherit">
+                    className="block bg-[#F5F5F5]/75 backdrop-blur-sm rounded-[24px] shadow-sm p-4 sm:p-6 md:p-8 mt-[25px] mx-[5px] hover:shadow-md transition-shadow no-underline text-inherit">
                     <div className="h-[150px] flex flex-col justify-between items-center text-center mx-[10px]">
                       <div>
                         <h3 className={`text-xl sm:text-2xl md:text-[25px] font-semibold mb-2 ${poppins.className} text-[#F4A460]`}>
@@ -110,7 +110,7 @@ export default function GroupsPage() {
               
               {/* Create New Group Card */}
               <Link href="/groups/create" 
-                className="block rounded-[24px] border-2 border-[#FFF5EE]/75 bg-transparent p-4 sm:p-6 md:p-8 mt-[65px] mx-[5px] flex items-center justify-center hover:bg-[#FFF5EE]/10 transition-colors no-underline text-inherit">
+                className="block rounded-[24px] border-2 border-[#FFF5EE]/75 bg-transparent p-4 sm:p-6 md:p-8 mt-[25px] mx-[5px] flex items-center justify-center hover:bg-[#FFF5EE]/10 transition-colors no-underline text-inherit">
                 <div className="flex items-center justify-center h-[150px] w-auto">
                   <HiPlus className="h-[80px] sm:h-[100px] w-6 sm:w-8 text-[#FFF5EE]/75 mx-auto" />
                 </div>
