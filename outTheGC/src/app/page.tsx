@@ -9,10 +9,14 @@ const poppins = Poppins({
 export default function Home() {
   const textShadowStyle = {
     textShadow: `
+<<<<<<< Updated upstream
       0 4px 4px rgba(0,0,0,0.45),
       2px 2px 2px rgba(247, 174, 90, 0.8),
       -1px -1px 1px rgba(247, 174, 90, 0.4),
       0 8px 12px rgba(0,0,0,0.25)
+=======
+      2px -1px 3px rgba(247, 174, 90, 0.4)
+>>>>>>> Stashed changes
     `,
     color: '#F7AE5A'
   };
@@ -54,13 +58,13 @@ export default function Home() {
       <div className="flex flex-col items-center justify-center min-h-screen">
         <div className="text-center space-y-6">
           <h1 
-            className={`text-[96px] leading-none font-bold`}
+            className={`${poppins.className} text-[96px] leading-none font-bold`}
             style={textShadowStyle}
           >
             OutTheGC
           </h1>
           <p 
-            className="text-[40px] leading-tight font-bold"
+            className={`${poppins.className} text-[40px] leading-tight font-bold`}
             style={textShadowStyle}
           >
             making moves, for real.
