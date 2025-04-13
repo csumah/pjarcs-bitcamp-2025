@@ -5,46 +5,73 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Navbar from '../../../components/Navbar';
 import Logo, { poppins } from '../../../components/Logo';
 import GroupService from '../../../services/groupService';
+import EventService from '../../../services/eventService';
 
 export default function CreateEvent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const groupId = searchParams.get('groupId');
   
-  const [eventName, setEventName] = useState('');
-  const [description, setDescription] = useState('');
-  const [location, setLocation] = useState('');
-  const [startDate, setStartDate] = useState('');
+  const [eventName, setEventName] = useState(searchParams.get('name') || '');
+  const [description, setDescription] = useState(searchParams.get('description') || '');
+  const [location, setLocation] = useState(searchParams.get('location') || '');
+  const [startDate, setStartDate] = useState(searchParams.get('date') || '');
   const [endDate, setEndDate] = useState('');
-  const [startTime, setStartTime] = useState('');
+  const [startTime, setStartTime] = useState(searchParams.get('time') || '');
   const [endTime, setEndTime] = useState('');
-  const [budget, setBudget] = useState('');
+  const [budget, setBudget] = useState(searchParams.get('budget') || '');
   const [splitBudget, setSplitBudget] = useState<'yes' | 'no' | null>(null);
+
+  useEffect(() => {
+    // Set split budget if budget is provided
+    if (budget && Number(budget) > 0) {
+      setSplitBudget('no');
+    }
+  }, []);
 
   const handleSubmit = () => {
     // Basic validation
     if (!eventName.trim() || !startDate || !groupId) return;
     if (endTime && !startTime) return; // Can't have end time without start time
 
+    // Get group info
+    const groups = JSON.parse(localStorage.getItem('groups') || '[]');
+    const group = groups.find((g: any) => g.id === Number(groupId));
+    
+    if (!group) {
+      console.error('Group not found');
+      return;
+    }
+
     const eventData = {
+      id: Date.now().toString(),
+      groupId: groupId.toString(),
+      groupName: group.name,
       name: eventName,
       description,
       location,
       date: startDate,
-      endDate: endDate || undefined,
-      time: startTime || '',  // Ensure time is always a string
-      endTime: endTime || undefined,
-      budget: Number(budget) > 0 ? budget : '',  // Treat 0 as empty string
-      splitBudget: Number(budget) > 0 ? splitBudget === 'yes' : false
+      time: startTime || '',
+      budget: Number(budget) > 0 ? budget : '',
+      splitBudget: Number(budget) > 0 ? splitBudget === 'yes' : false,
+      createdAt: new Date().toISOString()
     };
 
-    const result = GroupService.addEventToGroup(Number(groupId), eventData);
+    // Add event using EventService
+    EventService.addEvent(eventData);
 
-    if (result) {
-      router.push(`/groupdetails/${groupId}`);
-    } else {
-      console.error('Failed to add event to group');
-    }
+    // Update the group with the latest event
+    GroupService.addEventToGroup(Number(groupId), {
+      name: eventName,
+      description,
+      date: startDate,
+      time: startTime || '',
+      budget: Number(budget) > 0 ? budget : '',
+      splitBudget: Number(budget) > 0 ? splitBudget === 'yes' : false,
+      members: group.members
+    });
+
+    router.push(`/groupdetails/${groupId}`);
   };
 
   // Disable create button if required fields are missing or invalid combinations exist

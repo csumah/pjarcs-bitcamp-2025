@@ -1,14 +1,17 @@
 "use client"
 
 import { FC, useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Navbar from '../../components/Navbar';
 import Logo, { poppins } from '../../components/Logo';
 import GroupService, { Group } from '../../services/groupService';
+import EventService from '../../services/eventService';
 import Link from 'next/link';
 import { HiPlus } from 'react-icons/hi';
+import { FaLightbulb, FaTrash } from 'react-icons/fa';
 
 interface Event {
+  id: string;
   name: string;
   description: string;
   date: string;
@@ -20,14 +23,73 @@ interface Event {
 
 const GroupDetailsPage: FC = () => {
   const params = useParams();
+  const router = useRouter();
   const groupId = Number(params.id);
   const [group, setGroup] = useState<Group | null>(null);
+  const [events, setEvents] = useState<Event[]>([]);
 
   useEffect(() => {
+    // Clean up any orphaned events
+    EventService.cleanupDeletedGroups();
+    
     // Load group data using the service
     const currentGroup = GroupService.getGroupById(groupId);
     setGroup(currentGroup);
+
+    // Load all events for this group
+    const groupEvents = EventService.getEventsByGroupId(String(groupId));
+    setEvents(groupEvents);
+
+    // Update group with latest event if exists
+    if (groupEvents.length > 0) {
+      const latestEvent = groupEvents[0];
+      const groupWithEvent = GroupService.addEventToGroup(groupId, {
+        name: latestEvent.name,
+        description: latestEvent.description,
+        date: latestEvent.date,
+        time: latestEvent.time,
+        budget: latestEvent.budget,
+        splitBudget: latestEvent.splitBudget,
+        members: group?.members || []
+      });
+      if (groupWithEvent) {
+        setGroup(groupWithEvent);
+      }
+    }
   }, [groupId]);
+
+  const handleGetSuggestions = () => {
+    router.push(`/groupdetails/suggest?groupId=${groupId}`);
+  };
+
+  const handleDeleteEvent = (eventId: string) => {
+    // Delete the event
+    EventService.deleteEvent(eventId);
+    
+    // Update the events list
+    const updatedEvents = events.filter(e => e.id !== eventId);
+    setEvents(updatedEvents);
+
+    // If this was the latest event, update the group's event data
+    if (events[0]?.id === eventId) {
+      if (updatedEvents.length > 0) {
+        // Set the next event as the group's current event
+        const nextEvent = updatedEvents[0];
+        GroupService.addEventToGroup(groupId, {
+          name: nextEvent.name,
+          description: nextEvent.description,
+          date: nextEvent.date,
+          time: nextEvent.time,
+          budget: nextEvent.budget,
+          splitBudget: nextEvent.splitBudget,
+          members: group?.members || []
+        });
+      } else {
+        // No more events, remove the event from group
+        GroupService.updateGroup(groupId, { event: undefined });
+      }
+    }
+  };
 
   if (!group) {
     return (
@@ -72,69 +134,98 @@ const GroupDetailsPage: FC = () => {
                 overflow: 'hidden'
               }}
             >
-              <h2
-                className="text-white font-inter font-bold ml-6"
-                style={{
-                  fontWeight: 700,
-                  fontSize: '32px',
-                  lineHeight: '100%',
-                  letterSpacing: '0%',
-                  padding: '20px',
-                }}
-              >
-                Upcoming Plans
-              </h2>
+              <div className="flex items-center justify-between p-6">
+                <h2
+                  className="text-white font-inter font-bold"
+                  style={{
+                    fontWeight: 700,
+                    fontSize: '32px',
+                    lineHeight: '100%',
+                    letterSpacing: '0%',
+                  }}
+                >
+                  Upcoming Plans
+                </h2>
 
-              {/* Event Box */}
+                {/* Create New Event Button - Moved to top */}
+                <Link 
+                  href={`/groups/create/event?groupId=${group.id}`}
+                  className="flex items-center px-6 py-2 bg-white/90 rounded-full hover:bg-white transition-colors no-underline text-inherit"
+                >
+                  <HiPlus className="h-5 w-5 text-[#F4A460]" />
+                  <span className="ml-2 text-[#F4A460] font-medium">Create Event</span>
+                </Link>
+              </div>
+
+              {/* Event List */}
               <div 
-                className="flex flex-col items-center space-y-6 overflow-y-auto px-6" 
+                className="flex flex-col items-center space-y-4 overflow-y-auto px-6 pb-6" 
                 style={{ 
                   height: 'calc(100% - 80px)',
-                  paddingTop: '20px',
                   scrollbarWidth: 'thin',
                   scrollbarColor: '#F7AE5A transparent'
                 }}
               >
-                {group.event && (
-                  <div className="bg-[#F5F5F5]/75 rounded-[24px] p-4 shadow-sm">
-                    <div className="flex flex-col h-[150px]">
-                      <div className="flex-1">
-                        <h3 className={`text-xl font-semibold mb-1 ${poppins.className} text-[#F4A460] truncate`}>
-                          {group.event.name}
-                        </h3>
-                        <p className={`text-sm text-[#333333]/50 ${poppins.className} line-clamp-2`}>
-                          {group.event.description}
-                        </p>
-                        <div className={`mt-2 font-thin text-sm text-[#333333]/50 ${poppins.className}`}>
-                          <p className="truncate">{group.event.date} at {group.event.time}</p>
-                          {group.event.budget && <p className="truncate">Budget: ${group.event.budget}</p>}
+                {events.length > 0 ? (
+                  events.map((event, index) => (
+                    <div
+                      key={event.id}
+                      className="bg-white/90 rounded-[20px] p-6 w-full shadow-sm"
+                    >
+                      <div className="flex flex-col">
+                        <div className="flex-1">
+                          <div className="flex justify-between items-start mb-2">
+                            <h3 className={`text-2xl font-semibold ${poppins.className} text-[#F4A460]`}>
+                              {event.name}
+                            </h3>
+                            <button
+                              onClick={() => {
+                                if (window.confirm('Are you sure you want to delete this event?')) {
+                                  handleDeleteEvent(event.id);
+                                }
+                              }}
+                              className="p-2 text-[#F4A460] hover:text-red-500 transition-colors rounded-full hover:bg-red-50"
+                              title="Delete event"
+                            >
+                              <FaTrash className="w-4 h-4" />
+                            </button>
+                          </div>
+                          <div className="bg-[#FFF5EE] rounded-[15px] p-4 mb-3">
+                            <p className={`text-base text-[#333333]/80 ${poppins.className}`}>
+                              {event.description}
+                            </p>
+                          </div>
+                          <div className={`grid grid-cols-2 gap-4 ${poppins.className}`}>
+                            <div className="bg-[#FFF5EE] rounded-[15px] p-3">
+                              <p className="text-sm text-[#333333]/70">Date & Time</p>
+                              <p className="font-medium">{event.date}</p>
+                              <p className="font-medium">{event.time}</p>
+                            </div>
+                            <div className="bg-[#FFF5EE] rounded-[15px] p-3">
+                              <p className="text-sm text-[#333333]/70">Budget</p>
+                              <p className="font-medium">${event.budget}</p>
+                              <p className="text-sm text-[#F4A460]">
+                                {event.splitBudget ? 'Split between members' : 'No split'}
+                              </p>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex items-center justify-between mt-2">
-                        <div className="flex items-center">
-                          <div className="w-6 h-6 rounded-full bg-[#F4C998] border-2 border-white" />
-                          <span className={`${poppins.className} ml-2 text-[#333333]/50 text-sm`}>
-                            {group.event.members?.length || 0} members
-                          </span>
-                        </div>
-                        <div className="flex items-center">
-                          <span className={`${poppins.className} text-[#F4A460] text-sm font-medium`}>
-                            Split: {group.event.splitBudget ? 'Yes' : 'No'}
-                          </span>
+                        <div className="flex items-center justify-between mt-4 pt-2 border-t border-[#F4A460]/20">
+                          <div className="flex items-center">
+                            <span className={`${poppins.className} ml-3 text-[#333333]/70 text-sm`}>
+                              {group.members.length || 0} members attending
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
+                  ))
+                ) : (
+                  <div className="flex flex-col items-center justify-center w-full h-full text-white/90">
+                    <p className={`${poppins.className} text-lg mb-2`}>No events planned yet</p>
+                    <p className={`${poppins.className} text-sm`}>Create your first event!</p>
                   </div>
                 )}
-
-                {/* Create New Event Card */}
-                <Link 
-                  href={`/groups/create/event?groupId=${group.id}`}
-                  className="block rounded-[24px] w-[450px] h-[150px] border-2 border-[#FFF5EE]/75 bg-transparent p-4 sm:p-6 md:p-8 mt-[65px] mx-[5px] flex items-center justify-center hover:bg-[#FFF5EE]/10 transition-colors no-underline text-inherit">
-                  <div className="flex flex-col h-[150px] items-center justify-center">
-                    <HiPlus className="h-12 w-12 text-[#FFF5EE]/75" />
-                  </div>
-                </Link>
               </div>
             </div>
 
@@ -246,9 +337,9 @@ const GroupDetailsPage: FC = () => {
               </div>
             </div>
 
-            {/* Finance Box */}
+            {/* Replace Finance Box with Get Suggestions Box */}
             <div
-              className="rounded-[20px] h-[400px]"
+              className="rounded-[20px] h-[400px] relative overflow-hidden"
               style={{
                 background: 'linear-gradient(180deg, #F4C998 0%, #F7AE5A 100%)',
                 boxShadow: '4px 4px 9px 0px rgba(0, 0, 0, 0.25)',
@@ -264,8 +355,29 @@ const GroupDetailsPage: FC = () => {
                   padding: '20px',
                 }}
               >
-                Finance
+                Get Suggestions
               </h2>
+
+              <div className="flex flex-col items-center justify-center h-[calc(100%-80px)]">
+                <div 
+                  className="bg-white/90 rounded-[20px] p-6 w-[80%] text-center cursor-pointer transform transition-transform hover:scale-105"
+                  onClick={handleGetSuggestions}
+                >
+                  <FaLightbulb className="text-[#F4A460] text-4xl mx-auto mb-4" />
+                  <h3 className={`${poppins.className} text-xl font-semibold text-[#F4A460] mb-2`}>
+                    Need Ideas?
+                  </h3>
+                  <p className={`${poppins.className} text-[#333333]/70`}>
+                    Get AI-powered event suggestions tailored for your group
+                  </p>
+                </div>
+
+                <div className="mt-6 text-center">
+                  <p className={`${poppins.className} text-white/90 text-sm`}>
+                    Discover exciting activities and events that your group will love
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Navbar from '@/app/components/Navbar';
 import Logo, { poppins } from '@/app/components/Logo';
 import { GoogleGenAI } from "@google/genai";
@@ -17,6 +17,9 @@ interface EventSuggestion {
 
 export default function SuggestEvents() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const groupId = searchParams.get('groupId');
+  
   const [location, setLocation] = useState('');
   const [activities, setActivities] = useState('');
   const [preferredDays, setPreferredDays] = useState('');
@@ -24,10 +27,21 @@ export default function SuggestEvents() {
   const [additionalDetails, setAdditionalDetails] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [suggestions, setSuggestions] = useState<EventSuggestion[]>([]);
-  
-  const [response, setResponse] = useState("");
-  const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(true);
+
+  const handleUseSuggestion = (suggestion: EventSuggestion) => {
+    if (!groupId) return;
+
+    // Navigate to event creation with pre-filled data
+    router.push(`/groups/create/event?groupId=${groupId}&` + 
+      `name=${encodeURIComponent(suggestion.name)}&` +
+      `description=${encodeURIComponent(suggestion.description)}&` +
+      `location=${encodeURIComponent(suggestion.location)}&` +
+      `date=${encodeURIComponent(suggestion.suggestedDate)}&` +
+      `time=${encodeURIComponent(suggestion.suggestedTime)}&` +
+      `budget=${encodeURIComponent(suggestion.estimatedBudget.replace(/[^0-9.]/g, ''))}`
+    );
+  };
 
   const handleGetSuggestions = async () => {
     if (!location.trim()) return;
@@ -73,54 +87,59 @@ export default function SuggestEvents() {
   return (
     <div className="min-h-screen flex">
       <Navbar />
-      
-      <div className="flex-1 bg-[#F5F5F5] p-8">
+      <div className="flex-1 p-8">
+        {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <h1 className={`ml-[125px] top-[45px] text-6xl font-bold ${poppins.className} text-[#F4A460] [text-shadow:_1px_1px_2px_rgb(0_0_0_/_20%)]`}>
-            Event Suggestions
+          <h1 className={`ml-[125px] text-6xl font-bold ${poppins.className} text-[#F4A460] [text-shadow:_1px_1px_2px_rgb(0_0_0_/_20%)]`}>
+            Get Event Suggestions
           </h1>
           <Logo />
         </div>
 
-        {/* Display Suggestions in Grid */}
-        {suggestions.length > 0 && (
+        {!showForm && suggestions.length > 0 && (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-2 gap-6 mb-8">
               {suggestions.map((suggestion, index) => (
                 <div
                   key={index}
-                  className="bg-[#FFF5EA] rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow"
+                  className="bg-white rounded-[20px] p-6 shadow-md hover:shadow-lg transition-shadow"
                 >
-                  <h3 className="text-xl font-semibold text-[#F4A460] mb-2">
+                  <h3 className={`${poppins.className} text-xl font-semibold text-[#F4A460] mb-2`}>
                     {suggestion.name}
                   </h3>
-                  <p className="text-gray-600 mb-4 line-clamp-2">{suggestion.description}</p>
-                  <div className="space-y-2 text-sm">
-                    <div>
-                      <span className="font-medium text-[#F4A460]">Location:</span> {suggestion.location}
+                  <p className={`${poppins.className} text-[#333333]/70 mb-4`}>
+                    {suggestion.description}
+                  </p>
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="bg-[#FFF5EE] rounded-[15px] p-3">
+                      <p className="text-sm text-[#333333]/70">Location</p>
+                      <p className="font-medium">{suggestion.location}</p>
                     </div>
-                    <div>
-                      <span className="font-medium text-[#F4A460]">Date:</span> {suggestion.suggestedDate}
+                    <div className="bg-[#FFF5EE] rounded-[15px] p-3">
+                      <p className="text-sm text-[#333333]/70">Estimated Budget</p>
+                      <p className="font-medium">{suggestion.estimatedBudget}</p>
                     </div>
-                    <div>
-                      <span className="font-medium text-[#F4A460]">Time:</span> {suggestion.suggestedTime}
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="bg-[#FFF5EE] rounded-[15px] p-3">
+                      <p className="text-sm text-[#333333]/70">Suggested Date</p>
+                      <p className="font-medium">{suggestion.suggestedDate}</p>
                     </div>
-                    <div>
-                      <span className="font-medium text-[#F4A460]">Budget:</span> {suggestion.estimatedBudget}
+                    <div className="bg-[#FFF5EE] rounded-[15px] p-3">
+                      <p className="text-sm text-[#333333]/70">Suggested Time</p>
+                      <p className="font-medium">{suggestion.suggestedTime}</p>
                     </div>
                   </div>
                   <button
-                    onClick={() => {
-                      router.push('/groups/create/event');
-                    }}
-                    className="mt-4 w-full py-2 bg-[#F4A460] text-white rounded-full hover:bg-[#E38B4F] transition-colors font-semibold"
+                    onClick={() => handleUseSuggestion(suggestion)}
+                    className="w-full py-3 bg-[#F4A460] text-white rounded-full hover:bg-[#E38B4F] transition-colors font-semibold"
                   >
                     Use This Suggestion
                   </button>
                 </div>
               ))}
             </div>
-            <div className="flex justify-center">
+            <div className="flex justify-center space-x-4">
               <button
                 onClick={() => {
                   setShowForm(true);
@@ -129,6 +148,12 @@ export default function SuggestEvents() {
                 className="px-6 py-2 bg-[#F4A460] text-white rounded-full hover:bg-[#E38B4F] transition-colors font-semibold"
               >
                 Generate New Suggestions
+              </button>
+              <button
+                onClick={() => router.push(`/groupdetails/${groupId}`)}
+                className="px-6 py-2 border-2 border-[#F4A460] text-[#F4A460] rounded-full hover:bg-[#F4A460] hover:text-white transition-colors font-semibold"
+              >
+                Back to Group
               </button>
             </div>
           </>

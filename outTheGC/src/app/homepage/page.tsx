@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar';
 import Logo, { poppins } from '../components/Logo';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import EventService, { Event } from '../services/eventService';
 
 interface Group {
   id: number;
@@ -16,12 +17,17 @@ interface Group {
 
 export default function Homepage() {
   const [groups, setGroups] = useState<Group[]>([]);
+  const [latestEvents, setLatestEvents] = useState<Event[]>([]);
   const router = useRouter();
 
   useEffect(() => {
     // Load groups from localStorage
     const storedGroups = JSON.parse(localStorage.getItem('groups') || '[]');
     setGroups(storedGroups);
+
+    // Load latest events
+    const events = EventService.getLatestEvents();
+    setLatestEvents(events);
   }, []);
 
   const handleGroupClick = (e: React.MouseEvent) => {
@@ -35,6 +41,17 @@ export default function Homepage() {
     setTimeout(() => {
       router.push('/groups');
     }, 300);
+  };
+
+  // Format date for display
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   return (
@@ -90,15 +107,27 @@ export default function Homepage() {
             
             <div className="rounded-xl shadow bg-gradient-to-b from-[#F4C998] to-[#F7AE5A] p-4 h-[300px] overflow-y-auto">
               <div className="text-xl font-bold text-[#F5F5F5] mb-4">Latest Activity</div>
-              {[1, 2, 3, 4, 5].map((item) => (
-                <div
-                  key={item}
-                  className="flex items-center bg-orange-50 p-3 rounded-xl mb-2 shadow"
-                >
-                  <div className="w-6 h-6 bg-orange-300 rounded-full mr-4" />
-                  <div className="h-4 bg-orange-200 rounded w-full"></div>
+              {latestEvents.length > 0 ? (
+                latestEvents.map((event) => (
+                  <div
+                    key={event.id}
+                    className="flex flex-col bg-orange-50 p-3 rounded-xl mb-2 shadow hover:bg-orange-100 transition-colors cursor-pointer"
+                    onClick={() => router.push(`/groupdetails/${event.groupId}`)}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-semibold text-[#F4A460]">{event.name}</span>
+                      <span className="text-xs text-gray-500">{formatDate(event.createdAt)}</span>
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      Added to <span className="font-medium">{event.groupName}</span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-white text-center mt-4">
+                  No events created yet.
                 </div>
-              ))}
+              )}
             </div>
           </div>
 

@@ -1,3 +1,5 @@
+import EventService from './eventService';
+
 export interface Group {
   id: number;
   name: string;
@@ -66,6 +68,9 @@ class GroupService {
     const filteredGroups = groups.filter(group => group.id !== id);
     
     if (filteredGroups.length === groups.length) return false;
+    
+    // Delete all events associated with this group
+    EventService.deleteEventsByGroupId(id.toString());
     
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(filteredGroups));
     return true;
