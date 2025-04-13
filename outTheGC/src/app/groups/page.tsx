@@ -67,7 +67,7 @@ export default function GroupsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {groups.map((group) => (
                 <div key={group.id} className="relative">
-                  <Link href={`/groups/${group.id}`} 
+                  <Link href={`/groupdetails/${group.id}`} 
                     className="block bg-[#FFF5EE]/75 backdrop-blur-sm rounded-[24px] shadow-sm p-4 sm:p-6 md:p-8 mt-[65px] mx-[5px] hover:shadow-md transition-shadow no-underline text-inherit">
                     <div className="h-[150px] flex flex-col justify-between items-center text-center mx-[10px]">
                       <div>
