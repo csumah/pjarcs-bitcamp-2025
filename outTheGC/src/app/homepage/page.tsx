@@ -16,15 +16,32 @@ interface Group {
   createdAt: string;
 }
 
+interface UserData {
+  displayName: string;
+  email: string;
+  photoURL: string;
+  lastLogin: string;
+  uid: string;
+}
+
 export default function Homepage() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [latestEvents, setLatestEvents] = useState<Event[]>([]);
+  const [userData, setUserData] = useState<UserData | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    // Load groups from localStorage
-    const storedGroups = JSON.parse(localStorage.getItem('groups') || '[]');
-    setGroups(storedGroups);
+    // Load user data
+    const storedUserData = localStorage.getItem('userData');
+    if (storedUserData) {
+      setUserData(JSON.parse(storedUserData));
+    }
+
+    // Load groups
+    const storedGroups = localStorage.getItem('groups');
+    if (storedGroups) {
+      setGroups(JSON.parse(storedGroups));
+    }
 
     // Load latest events
     const events = EventService.getLatestEvents();
@@ -61,8 +78,20 @@ export default function Homepage() {
       <Navbar />   
       {/* Main Content Area */}
       <div className={`${poppins.className} flex-1 flex flex-col p-6 sm:p-8 lg:p-10`}>
-        {/* Header */}
-        <div className="flex justify-end mb-8">
+        {/* Header with user info */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <h1 className={`text-6xl font-bold ${poppins.className} text-[#F4A460] [text-shadow:_1px_1px_2px_rgb(0_0_0_/_20%)]`}>
+              Welcome
+            </h1>
+            {userData && (
+              <div className="flex flex-col">
+                <span className="text-2xl font-semibold text-[#F4A460]">
+                  {userData.displayName}
+                </span>
+              </div>
+            )}
+          </div>
           <Logo />
         </div>
 

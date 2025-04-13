@@ -35,7 +35,17 @@ export default function LoginPage() {
         // Store user in context and localStorage
         login(user);
         
-        // Store any additional user data you want to persist
+        // Store user profile data
+        const userData = {
+          displayName: user.displayName || 'User',
+          email: user.email || '',
+          photoURL: user.photoURL || '',
+          lastLogin: new Date().toISOString(),
+          uid: user.uid
+        };
+
+        // Store in localStorage
+        localStorage.setItem('userData', JSON.stringify(userData));
         localStorage.setItem('userPreferences', JSON.stringify({
           lastLogin: new Date().toISOString(),
           // Add any other user preferences you want to store
