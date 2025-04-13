@@ -2,34 +2,43 @@
 
 import { FC } from 'react';
 import Link from 'next/link';
+import Navbar from '../components/Navbar';
+import Image from 'next/image';
+import { Poppins } from 'next/font/google';
+
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['600'],
+});
 
 const GroupDetailsPage: FC = () => {
   return (
     <div className="flex min-h-screen bg-white">
-      {/* Left Sidebar */}
-      <div className="w-16 bg-[#E4B684] flex flex-col items-center py-4 space-y-8">
-        <Link href="/" className="text-white">
-          <HomeIcon className="w-6 h-6" />
-        </Link>
-        <Link href="/groups" className="text-white">
-          <GroupIcon className="w-6 h-6" />
-        </Link>
-        <Link href="/calendar" className="text-white">
-          <CalendarIcon className="w-6 h-6" />
-        </Link>
-        <Link href="/create" className="text-white">
-          <PlusIcon className="w-6 h-6" />
-        </Link>
-      </div>
-
+      <Navbar />
       {/* Main Content */}
       <div className="flex-1 p-8">
         {/* Header */}
-        <div className="flex items-start mb-7 pr-10 pl-40">
-          <h1 className="text-[64px] pr-64 font-bold text-[#F7AE5A] font-inter leading-[100%] tracking-[0%] [text-shadow:_0px_4px_4px_rgba(0,0,0,0.25)] ml-20">Group Name</h1>
-          <div className="flex items-center space-x-4 mt-2 ">
-            <p className="flex items-start text-[48px] font-bold text-[#F7AE5A] font-inter leading-[100%] tracking-[0%] [text-shadow:_0px_2px_4px_rgba(0,0,0,0.1)]">OutTheGC</p>
-            <p className="text-[24px] font-bold text-[#F7AE5A] font-inter leading-[100%] tracking-[0%] mt-10 [text-shadow:_0px_2px_4px_rgba(0,0,0,0.1)]">making moves, for real.</p>
+        <div className="flex items-center justify-between mb-8">
+          <h1 className={`ml-[125px] top-[45px] text-6xl font-bold ${poppins.className} text-[#F4A460] [text-shadow:_1px_1px_2px_rgb(0_0_0_/_20%)]`}>
+              Group Name
+          </h1>
+
+          <div className="top-[45px] flex items-center">
+            <Image
+              src="/component/logo.png"
+              alt="OutTheGC Logo"
+              width={140}
+              height={140}
+              className="w-50 h-50"
+            />
+            <div className="flex flex-col mr-4">
+              <h1 className={`text-5xl font-bold ${poppins.className} text-[#F4A460] [text-shadow:_1px_1px_2px_rgb(0_0_0_/_20%)]`}>
+                OutTheGC 
+              </h1>
+              <p className={`${poppins.className} text-[#F4A460] mt-2 [text-shadow:_1px_1px_2px_rgb(0_0_0_/_20%)]`}>
+                making moves, for real.
+              </p>
+            </div>
           </div>
         </div>
 
