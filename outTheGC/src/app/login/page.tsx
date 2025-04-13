@@ -4,6 +4,7 @@ import { initializeApp, getApps } from "firebase/app";
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuthContext } from '@/context/AuthContext';
 
 const firebaseConfig = {
@@ -47,9 +48,20 @@ export default function LoginPage() {
     }
   };
 
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="absolute top-0 left-0">
+        <Image
+          src="/component/logo.png"
+          alt="OutTheGC Logo"
+          width={100}
+          height={100}
+          className="w-40 h-40"
+        />
+      </div>
       <div className="bg-gradient-to-b from-[#F4C998] to-[#F7AE5A] rounded-2xl p-12 shadow-2xl w-[500px] text-center transform hover:shadow-3xl transition-all duration-300">
+        
         <h1 className="text-6xl font-bold text-white mb-4">OutTheGC</h1>
         <p className="text-2xl text-white mb-12">making moves, for real.</p>
         
