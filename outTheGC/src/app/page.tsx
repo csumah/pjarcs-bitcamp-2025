@@ -10,8 +10,7 @@ const poppins = Poppins({
 export default function Home() {
   const textShadowStyle = {
     textShadow: `
-      0 4px 4px rgba(0,0,0,0.45),
-      2px 2px 2px rgba(247, 174, 90, 0.8),
+      2px 2px 2px rgba(146, 144, 141, 0.8),
       -1px -1px 1px rgba(247, 174, 90, 0.4)
     `,
     color: '#F7AE5A'
@@ -27,7 +26,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-white relative">
+    <main className="min-h-screen bg-[#F5F5F5] relative">
       {/* Logo */}
       <div className="absolute top-0 left-0">
         <Image

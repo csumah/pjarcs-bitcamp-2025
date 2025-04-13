@@ -93,7 +93,7 @@ const GroupDetailsPage: FC = () => {
 
   if (!group) {
     return (
-      <div className="flex min-h-screen bg-white">
+      <div className="flex min-h-screen bg-[#F5F5F5]">
         <Navbar />
         <div className="flex-1 p-3">
           <div className="flex items-center justify-between">
@@ -108,7 +108,7 @@ const GroupDetailsPage: FC = () => {
   }
 
   return (
-    <div className="flex min-h-screen bg-white">
+    <div className="flex min-h-screen bg-[#F5F5F5]">
       <Navbar />
       {/* Main Content */}
       <div className="flex-1 p-6">
