@@ -11,8 +11,8 @@ import { HiPlus } from "react-icons/hi";
 const navItems = [
   { icon: HiHome, href: '/homepage', label: 'Home' },
   { icon: HiUserGroup, href: '/groups', label: 'Groups' },
-  { icon: HiCalendar, href: '#', label: 'Events' },
-  { icon: HiPlus, href: '#', label: 'Create' }
+  { icon: HiCalendar, href: '/calendar', label: 'Events' },
+  { icon: HiPlus, href: '/groups/create', label: 'Create' }
 ];
 
 export default function Navbar() {
