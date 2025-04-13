@@ -6,11 +6,12 @@ import Navbar from '../components/Navbar';
 import Logo, { poppins } from '../components/Logo';
 
 const GroupDetailsPage: FC = () => {
+  
   return (
     <div className="flex min-h-screen bg-white">
       <Navbar />
       {/* Main Content */}
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-3">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <h1 className={`ml-[125px] top-[45px] text-6xl font-bold ${poppins.className} text-[#F4A460] [text-shadow:_1px_1px_2px_rgb(0_0_0_/_20%)]`}>

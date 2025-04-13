@@ -1,12 +1,16 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Navbar from '../../../components/Navbar';
 import Logo, { poppins } from '../../../components/Logo';
+import GroupService from '../../../services/groupService';
 
 export default function CreateEvent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const groupId = searchParams.get('groupId');
+  
   const [eventName, setEventName] = useState('');
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
@@ -21,9 +25,8 @@ export default function CreateEvent() {
     if (!eventName.trim() || !startDate) return;
     if (endTime && !startTime) return; // Can't have end time without start time
 
-    // Get the most recently created group
-    const groups = JSON.parse(localStorage.getItem('groups') || '[]');
-    const currentGroup = groups[groups.length - 1];
+  const handleSubmit = () => {
+    if (!eventName.trim() || !date || !time || !groupId) return;
 
     // Add event details to the group
     const updatedGroup = {
@@ -41,12 +44,16 @@ export default function CreateEvent() {
       },
     };
 
-    // Update the group in localStorage
-    groups[groups.length - 1] = updatedGroup;
-    localStorage.setItem('groups', JSON.stringify(groups));
+    // Add event to group using the service
+    const updatedGroup = GroupService.addEventToGroup(Number(groupId), eventData);
 
-    // Navigate to the groups page
-    router.push('/groups');
+    if (updatedGroup) {
+      // Navigate to the group details page
+      router.push(`/groupdetails/${groupId}`);
+    } else {
+      // Handle error case
+      console.error('Failed to add event to group');
+    }
   };
 
   const isCreateDisabled = Boolean(!eventName || eventName.trim() === '' || !startDate || (endTime && !startTime));
@@ -222,4 +229,4 @@ export default function CreateEvent() {
         </div>
     </div>
   );
-} 
+}
