@@ -22,41 +22,38 @@ export default function CreateEvent() {
   const [splitBudget, setSplitBudget] = useState<'yes' | 'no' | null>(null);
 
   const handleSubmit = () => {
-    if (!eventName.trim() || !startDate) return;
+    // Basic validation
+    if (!eventName.trim() || !startDate || !groupId) return;
     if (endTime && !startTime) return; // Can't have end time without start time
 
-  const handleSubmit = () => {
-    if (!eventName.trim() || !date || !time || !groupId) return;
-
-    // Add event details to the group
-    const updatedGroup = {
-      ...currentGroup,
-      event: {
-        name: eventName,
-        description,
-        location,
-        startDate,
-        endDate,
-        startTime,
-        endTime,
-        budget: budget || '0',
-        splitBudget: splitBudget === 'yes',
-      },
+    const eventData = {
+      name: eventName,
+      description,
+      location,
+      date: startDate,
+      endDate: endDate || undefined,
+      time: startTime || '',  // Ensure time is always a string
+      endTime: endTime || undefined,
+      budget: Number(budget) > 0 ? budget : '',  // Treat 0 as empty string
+      splitBudget: Number(budget) > 0 ? splitBudget === 'yes' : false
     };
 
-    // Add event to group using the service
-    const updatedGroup = GroupService.addEventToGroup(Number(groupId), eventData);
+    const result = GroupService.addEventToGroup(Number(groupId), eventData);
 
-    if (updatedGroup) {
-      // Navigate to the group details page
+    if (result) {
       router.push(`/groupdetails/${groupId}`);
     } else {
-      // Handle error case
       console.error('Failed to add event to group');
     }
   };
 
-  const isCreateDisabled = Boolean(!eventName || eventName.trim() === '' || !startDate || (endTime && !startTime));
+  // Disable create button if required fields are missing or invalid combinations exist
+  const isCreateDisabled = Boolean(
+    !eventName.trim() || 
+    !startDate || 
+    (endTime && !startTime) || 
+    (Number(budget) > 0 && splitBudget === null)  // Only require split budget choice if budget > 0
+  );
 
   return (
     <div className="min-h-screen flex">
@@ -79,10 +76,11 @@ export default function CreateEvent() {
                     <div>
                         <input
                             type="text"
-                            placeholder="Name your first event"
+                            placeholder="Name your event*"
                             value={eventName}
                             onChange={(e) => setEventName(e.target.value)}
                             className="w-full p-4 text-lg border-b border-[#F4A460]/30 bg-transparent placeholder-[#999] text-black focus:outline-none focus:border-[#F4A460]"
+                            required
                         />
                     </div>
 
@@ -177,12 +175,17 @@ export default function CreateEvent() {
                             type="number"
                             placeholder="Set budget (optional)"
                             value={budget}
-                            onChange={(e) => setBudget(e.target.value)}
+                            onChange={(e) => {
+                                setBudget(e.target.value);
+                                if (!e.target.value) {
+                                    setSplitBudget(null);
+                                }
+                            }}
                             className="w-full p-4 text-lg border-b border-[#F4A460]/30 bg-transparent placeholder-[#999] text-black focus:outline-none focus:border-[#F4A460]"
                         />
 
                         {/* Only show split budget options when budget has a value */}
-                        {budget && budget !== '0' && (
+                        {Number(budget) > 0 && (
                             <div className="space-y-2 transition-all duration-300">
                                 <p className="text-[#999]">Split budget</p>
                                 <div className="flex gap-4">
