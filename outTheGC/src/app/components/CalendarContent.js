@@ -13,6 +13,7 @@ const CalendarComponentWithAuth = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [tokenClient, setTokenClient] = useState(null);
+  // LOOK HERE
 
   useEffect(() => {
     // Load the Google Identity Services script
