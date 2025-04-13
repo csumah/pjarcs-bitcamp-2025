@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Poppins } from 'next/font/google';
 
 const poppins = Poppins({
@@ -28,8 +29,19 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-white relative">
+      {/* Logo */}
+      <div className="absolute top-0 left-0">
+        <Image
+          src="/component/logo.png"
+          alt="OutTheGC Logo"
+          width={100}
+          height={100}
+          className="w-40 h-40"
+        />
+      </div>
+
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 p-8 flex justify-end items-center gap-8 z-10">
+      <nav className="fixed top-0 right-0 p-8 flex justify-end items-center gap-8 z-10">
         <Link 
           href="/signup" 
           className={`${poppins.className} text-2xl font-semibold hover:opacity-80 transition-opacity`}

@@ -3,6 +3,7 @@ import { HiPlus } from "react-icons/hi";
 import Link from 'next/link';
 import { Poppins } from 'next/font/google';
 import Navbar from '../components/Navbar';
+import Image from 'next/image';
 const poppins = Poppins({
   subsets: ['latin'],
   weight: ['600'],
@@ -35,8 +36,6 @@ export default function GroupsPage() {
     <div className="min-h-screen relative bg-white">
 
       {/** Navigation Bar - Placeholder **/}
-      {/* <nav className="fixed left-0 top-0 h-full w-[85px] bg-gradient-to-b from-[#F4C998] to-[#F7AE5A] flex flex-col items-center py-8 space-y-8">
-      </nav> */}
       <Navbar />
       
       {/** Main Body **/}
@@ -46,13 +45,22 @@ export default function GroupsPage() {
               Groups
           </h1>
 
-          <div className="top-[45px] flex justify-between items-center">
-            <h1 className={`mr-[10px] text-5xl font-bold ${poppins.className} text-[#F4A460] [text-shadow:_1px_1px_2px_rgb(0_0_0_/_20%)]`}>
+          <div className="top-[45px] flex items-center">
+            <Image
+              src="/component/logo.png"
+              alt="OutTheGC Logo"
+              width={140}
+              height={140}
+              className="w-50 h-50"
+            />
+            <div className="flex flex-col mr-4">
+              <h1 className={`text-5xl font-bold ${poppins.className} text-[#F4A460] [text-shadow:_1px_1px_2px_rgb(0_0_0_/_20%)]`}>
                 OutTheGC 
-            </h1>
-            <p className={`mr-[50px] ${poppins.className} text-[#F4A460] ml-4 [text-shadow:_1px_1px_2px_rgb(0_0_0_/_20%)]`}>
-              making moves, for real.
-            </p>
+              </h1>
+              <p className={`${poppins.className} text-[#F4A460] mt-2 [text-shadow:_1px_1px_2px_rgb(0_0_0_/_20%)]`}>
+                making moves, for real.
+              </p>
+            </div>
           </div>
         </div>
 

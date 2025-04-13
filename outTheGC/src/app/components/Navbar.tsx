@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { HiHome } from "react-icons/hi";
 import { HiUserGroup } from "react-icons/hi";
 import { HiCalendar } from "react-icons/hi";
@@ -18,7 +19,8 @@ export default function Navbar() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed left-0 top-0 h-full w-[85px] bg-gradient-to-b from-[#F4C998] to-[#F7AE5A] flex flex-col items-center py-8 space-y-8">
+    <nav className="fixed left-0 top-0 h-screen w-16 md:w-20 bg-gradient-to-b from-[#F4C998] to-[#F7AE5A] flex flex-col items-center py-8">
+      {/* Navigation Items */}
       {navItems.map((item) => {
         const isActive = pathname === item.href;
         
