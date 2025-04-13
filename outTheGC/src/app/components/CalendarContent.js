@@ -3,8 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import { LogIn, LogOut } from 'lucide-react';
 
-const GOOGLE_CLIENT_ID = '118688014672-tgnpascibcoo1bgt63l8fhro7nbepmsp.apps.googleusercontent.com';
-const SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
+//Might need to change this to the client ID for the production environment
+const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+const SCOPES = 'https://www.googleapis.com/auth/calendar.events.readonly https://www.googleapis.com/auth/calendar.readonly';
 
 const CalendarComponentWithAuth = () => {
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -33,30 +34,58 @@ const CalendarComponentWithAuth = () => {
         throw new Error('Google API not loaded');
       }
 
-      // Initialize the token client
+      console.log('Initializing Google Auth...');
+
+      // Initialize the token client first
       const client = window.google.accounts.oauth2.initTokenClient({
         client_id: GOOGLE_CLIENT_ID,
         scope: SCOPES,
         callback: (tokenResponse) => {
+          console.log('Token response received:', tokenResponse ? 'success' : 'failed');
           if (tokenResponse && tokenResponse.access_token) {
+            setIsSignedIn(true);
             fetchCalendarEvents(tokenResponse.access_token);
+          } else {
+            console.error('No access token received');
+            setError('Failed to get access token');
           }
         }
       });
-      setTokenClient(client);
 
-      // Initialize the Google Identity Services with minimal configuration
+      // Set the token client in state immediately
+      setTokenClient(client);
+      console.log('Token client initialized:', !!client);
+
+      // Initialize the Google Identity Services
       window.google.accounts.id.initialize({
         client_id: GOOGLE_CLIENT_ID,
-        callback: handleCredentialResponse
+        callback: (response) => {
+          // Ensure tokenClient is available before proceeding
+          if (!client) {
+            console.error('Token client not available');
+            setError('Authentication system not properly initialized');
+            return;
+          }
+          handleCredentialResponse(response, client);
+        },
+        auto_select: false,
+        cancel_on_tap_outside: true
       });
 
-      // Render the sign-in button with minimal configuration
+      // Render the sign-in button
       const buttonDiv = document.getElementById('googleSignInButton');
       if (buttonDiv) {
         window.google.accounts.id.renderButton(
           buttonDiv,
-          { theme: 'outline', size: 'large' }
+          { 
+            theme: 'outline', 
+            size: 'large',
+            width: 250,
+            text: 'signin_with',
+            shape: 'rectangular',
+            logo_alignment: 'left',
+            type: 'standard'
+          }
         );
       }
     } catch (err) {
@@ -68,17 +97,70 @@ const CalendarComponentWithAuth = () => {
   const fetchCalendarEvents = async (accessToken) => {
     try {
       setLoading(true);
-      const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-        },
-      });
+      const now = new Date();
+      const ninetyDaysFromNow = new Date();
+      ninetyDaysFromNow.setDate(now.getDate() + 90);
+      
+      console.log('Fetching calendar events with scopes:', SCOPES);
+      
+      // First, test the token by getting calendar list
+      const calendarResponse = await fetch(
+        'https://www.googleapis.com/calendar/v3/users/me/calendarList',
+        {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Accept': 'application/json',
+          },
+        }
+      );
+
+      if (!calendarResponse.ok) {
+        const errorData = await calendarResponse.json();
+        console.error('Calendar List Error:', errorData);
+        throw new Error('Failed to access calendar list');
+      }
+
+      const calendarData = await calendarResponse.json();
+      console.log('Available calendars:', calendarData);
+
+      // Then fetch events
+      const response = await fetch(
+        `https://www.googleapis.com/calendar/v3/calendars/primary/events?` + 
+        new URLSearchParams({
+          timeMin: now.toISOString(),
+          timeMax: ninetyDaysFromNow.toISOString(),
+          orderBy: 'startTime',
+          singleEvents: true,
+          maxResults: 100,
+          fields: 'items(id,summary,description,start,end)'
+        }),
+        {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Accept': 'application/json',
+          },
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to fetch calendar events');
+        const errorData = await response.json();
+        console.error('Calendar Events Error:', errorData);
+        throw new Error(`Failed to fetch calendar events: ${errorData.error?.message || response.statusText}`);
       }
 
       const data = await response.json();
+      console.log('Calendar events response:', data);
+
+      if (!data.items || data.items.length === 0) {
+        console.log('No events found in the response');
+      } else {
+        console.log('Found events:', data.items.map(event => ({
+          summary: event.summary,
+          start: event.start.dateTime || event.start.date,
+          end: event.end.dateTime || event.end.date
+        })));
+      }
+
       setEvents(data.items || []);
     } catch (err) {
       console.error('Error fetching calendar events:', err);
@@ -88,13 +170,24 @@ const CalendarComponentWithAuth = () => {
     }
   };
 
-  const handleCredentialResponse = async (response) => {
-    if (response.credential) {
-      setIsSignedIn(true);
-      setError(null);
-      if (tokenClient) {
-        tokenClient.requestAccessToken();
+  const handleCredentialResponse = async (response, client) => {
+    try {
+      console.log('Credential response received, requesting token...');
+      if (response.credential) {
+        // Use the passed client instead of relying on state
+        if (client) {
+          client.requestAccessToken({ prompt: 'consent' });
+        } else {
+          console.error('Token client not provided to handler');
+          setError('Authentication system not properly initialized');
+        }
+      } else {
+        console.error('No credential in response:', response);
+        setError('Authentication failed: No credential received');
       }
+    } catch (err) {
+      console.error('Error in credential response:', err);
+      setError(`Authentication error: ${err.message}`);
     }
   };
 
