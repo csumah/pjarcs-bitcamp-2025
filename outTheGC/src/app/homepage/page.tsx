@@ -38,7 +38,7 @@ export default function Homepage() {
   };
 
   return (
-    <div className="flex h-screen bg-white font-sans">
+    <div className="flex min-h-screen bg-white font-sans">
       {/* Sidebar */}
       <Navbar />   
       {/* Main Content Area */}
