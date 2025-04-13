@@ -68,7 +68,7 @@ export default function GroupsPage() {
               {groups.map((group) => (
                 <div key={group.id} className="relative">
                   <Link href={`/groupdetails/${group.id}`} 
-                    className="block bg-[#FFF5EE]/75 backdrop-blur-sm rounded-[24px] shadow-sm p-4 sm:p-6 md:p-8 mt-[65px] mx-[5px] hover:shadow-md transition-shadow no-underline text-inherit">
+                    className="block bg-[#F5F5F5]/75 backdrop-blur-sm rounded-[24px] shadow-sm p-4 sm:p-6 md:p-8 mt-[65px] mx-[5px] hover:shadow-md transition-shadow no-underline text-inherit">
                     <div className="h-[150px] flex flex-col justify-between items-center text-center mx-[10px]">
                       <div>
                         <h3 className={`text-xl sm:text-2xl md:text-[25px] font-semibold mb-2 ${poppins.className} text-[#F4A460]`}>
@@ -92,7 +92,7 @@ export default function GroupsPage() {
                             </div>
                           )}
                         </div>
-                        <span className="ml-2 text-white/80 text-sm">
+                        <span className="ml-2 text-[#333333]/50 text-sm">
                           {group.members.length} members
                         </span>
                       </div>

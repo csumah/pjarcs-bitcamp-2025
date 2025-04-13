@@ -11,6 +11,7 @@ export interface Group {
     time: string;
     budget: string;
     splitBudget: boolean;
+    members?: string[];
   };
 }
 

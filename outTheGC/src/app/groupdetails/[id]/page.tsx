@@ -5,6 +5,18 @@ import { useParams } from 'next/navigation';
 import Navbar from '../../components/Navbar';
 import Logo, { poppins } from '../../components/Logo';
 import GroupService, { Group } from '../../services/groupService';
+import Link from 'next/link';
+import { HiPlus } from 'react-icons/hi';
+
+interface Event {
+  name: string;
+  description: string;
+  date: string;
+  time: string;
+  budget: string;
+  splitBudget: boolean;
+  members?: string[];
+}
 
 const GroupDetailsPage: FC = () => {
   const params = useParams();
@@ -74,39 +86,56 @@ const GroupDetailsPage: FC = () => {
               </h2>
 
               {/* Event Box */}
-              {group.event && (
-                <div 
-                  className="flex flex-col items-center space-y-6 overflow-y-auto px-6" 
-                  style={{ 
-                    height: 'calc(100% - 80px)',
-                    paddingTop: '20px',
-                    scrollbarWidth: 'thin',
-                    scrollbarColor: '#F7AE5A transparent'
-                  }}
-                >
-                  <div
-                    className="rounded-lg flex-shrink-0"
-                    style={{
-                      width: '80%',
-                      height: '200px',
-                      borderRadius: '15px',
-                      backgroundColor: '#F5F5F5BF',
-                      boxShadow: '6px 6px 12px 0px rgba(0, 0, 0, 0.3)',
-                    }}
-                  >
-                    <div className="p-5">
-                      <h3 className="text-xl font-bold text-[#F4A460] mb-3">{group.event.name}</h3>
-                      <p className="text-gray-600 mb-4">{group.event.description}</p>
-                      <div className="text-gray-700 text-sm">
-                        <p>Date: {group.event.date}</p>
-                        <p>Time: {group.event.time}</p>
-                        {group.event.budget && <p>Budget: ${group.event.budget}</p>}
-                        <p>Split Budget: {group.event.splitBudget ? 'Yes' : 'No'}</p>
+              <div 
+                className="flex flex-col items-center space-y-6 overflow-y-auto px-6" 
+                style={{ 
+                  height: 'calc(100% - 80px)',
+                  paddingTop: '20px',
+                  scrollbarWidth: 'thin',
+                  scrollbarColor: '#F7AE5A transparent'
+                }}
+              >
+                {group.event && (
+                  <div className="bg-[#F5F5F5]/75 rounded-[24px] p-4 shadow-sm">
+                    <div className="flex flex-col h-[150px]">
+                      <div className="flex-1">
+                        <h3 className={`text-xl font-semibold mb-1 ${poppins.className} text-[#F4A460] truncate`}>
+                          {group.event.name}
+                        </h3>
+                        <p className={`text-sm text-[#333333]/50 ${poppins.className} line-clamp-2`}>
+                          {group.event.description}
+                        </p>
+                        <div className={`mt-2 font-thin text-sm text-[#333333]/50 ${poppins.className}`}>
+                          <p className="truncate">{group.event.date} at {group.event.time}</p>
+                          {group.event.budget && <p className="truncate">Budget: ${group.event.budget}</p>}
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between mt-2">
+                        <div className="flex items-center">
+                          <div className="w-6 h-6 rounded-full bg-[#F4C998] border-2 border-white" />
+                          <span className={`${poppins.className} ml-2 text-[#333333]/50 text-sm`}>
+                            {group.event.members?.length || 0} members
+                          </span>
+                        </div>
+                        <div className="flex items-center">
+                          <span className={`${poppins.className} text-[#F4A460] text-sm font-medium`}>
+                            Split: {group.event.splitBudget ? 'Yes' : 'No'}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
+
+                {/* Create New Event Card */}
+                <Link 
+                  href={`/groups/create/event?groupId=${group.id}`}
+                  className="block rounded-[24px] w-[450px] h-[150px] border-2 border-[#FFF5EE]/75 bg-transparent p-4 sm:p-6 md:p-8 mt-[65px] mx-[5px] flex items-center justify-center hover:bg-[#FFF5EE]/10 transition-colors no-underline text-inherit">
+                  <div className="flex flex-col h-[150px] items-center justify-center">
+                    <HiPlus className="h-12 w-12 text-[#FFF5EE]/75" />
+                  </div>
+                </Link>
+              </div>
             </div>
 
             {/* Calendar Box */}
@@ -184,7 +213,8 @@ const GroupDetailsPage: FC = () => {
                     style={{
                       width: '360px',
                       height: '76px',
-                      backgroundColor: 'rgba(245, 245, 245, 0.75)',
+                      backgroundColor: '#F5F5F5',
+                      opacity: 0.75,
                     }}
                   >
                     <div
